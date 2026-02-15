@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Personal Website</title>
+    <script>
+      // Sync .dark class with system preference before first paint
+      (function () {
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        function apply(e) {
+          document.documentElement.classList.toggle('dark', e.matches);
+        }
+        apply(mq);
+        mq.addEventListener('change', apply);
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -12,6 +23,6 @@
     <div id="loading" style="display:none; text-align:center; padding:4rem; font-family:system-ui,sans-serif; color:#888;">
       <p>Loading...</p>
     </div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

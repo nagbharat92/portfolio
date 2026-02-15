@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  // GitHub Pages deployment:
-  // Replace '<REPO_NAME>' with your actual GitHub repository name.
-  // Example: base: '/personal-website/'
-  // For custom domains, set base: '/'
-  // In dev mode, base is automatically '/' so local dev always works.
-  base: process.env.NODE_ENV === 'production' ? '/<REPO_NAME>/' : '/',
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  base: process.env.NODE_ENV === 'production' ? '/portfolio/' : '/',
 })
