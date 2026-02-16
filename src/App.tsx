@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
-import { SunIcon, MoonIcon } from '@heroicons/react/24/solid'
 import './App.css'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
-import { IconButton } from '@/components/ui/icon-button'
 import {
   Tooltip,
   TooltipContent,
@@ -22,7 +20,7 @@ function App() {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar dark={dark} setDark={setDark} />
 
       <div className="relative flex flex-1 flex-col">
         {/* Mobile top bar — visible only below md */}
@@ -33,36 +31,14 @@ function App() {
                 <SidebarTrigger />
               </TooltipTrigger>
               <TooltipContent side="bottom">
-                <p>Menu</p>
+                <p>Explore</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <span className="text-sm font-semibold tracking-tight">Bharat Nag</span>
-          <IconButton
-            tooltip={dark ? 'Light mode' : 'Dark mode'}
-            tooltipSide="bottom"
-            variant="ghost"
-            className="ml-auto"
-            onClick={() => setDark((d) => !d)}
-            aria-label="Toggle theme"
-          >
-            {dark ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
-          </IconButton>
         </header>
 
         {/* Canvas */}
         <main className="relative flex-1">
-          {/* Desktop theme toggle — hidden on mobile */}
-          <IconButton
-            tooltip={dark ? 'Light mode' : 'Dark mode'}
-            tooltipSide="bottom"
-            variant="ghost"
-            className="absolute top-0 right-0 hidden md:inline-flex"
-            onClick={() => setDark((d) => !d)}
-            aria-label="Toggle theme"
-          >
-            {dark ? <SunIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />}
-          </IconButton>
         </main>
       </div>
     </SidebarProvider>

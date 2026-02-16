@@ -117,3 +117,41 @@
   --sidebar-border: 240 3.7% 15.9%;
   --sidebar-ring: 217.2 91.2% 59.8%;
 }
+
+/* Typewriter copy-email animation */
+.typewriter-text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid currentColor;
+  max-width: 0;
+  vertical-align: bottom;
+  text-align: left;
+}
+
+.typewriter-text.typing-in {
+  animation: typeIn 0.5s ease-out forwards, blinkCaret 0.5s step-end 2;
+}
+
+.typewriter-text.typing-out {
+  animation: typeOut 0.5s ease-out forwards;
+}
+
+.typewriter-text.idle {
+  max-width: none;
+  border-right-color: transparent;
+}
+
+@keyframes typeIn {
+  from { max-width: 0; }
+  to   { max-width: 10em; }
+}
+
+@keyframes typeOut {
+  from { max-width: 10em; }
+  to   { max-width: 0; }
+}
+
+@keyframes blinkCaret {
+  50% { border-color: transparent; }
+}
