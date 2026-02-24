@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @theme inline {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
@@ -44,7 +52,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     background-image: radial-gradient(circle, hsl(var(--border)) 1.4px, transparent 1.4px);
     background-size: 24px 24px;
@@ -154,4 +161,18 @@
 
 @keyframes blinkCaret {
   50% { border-color: transparent; }
+}
+
+/* App layout */
+#root {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  #root {
+    padding: 2.5rem;
+  }
 }

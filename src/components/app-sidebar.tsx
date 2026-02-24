@@ -3,16 +3,14 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { FolderTree } from "@/components/folder-tree"
 
 const EMAIL = "nagbharat92@gmail.com"
 const linkClasses = "font-bold text-sidebar-foreground underline-offset-4 hover:underline inline-flex items-baseline gap-1"
 
-export function AppSidebar({ dark, setDark }: { dark: boolean; setDark: (fn: (d: boolean) => boolean) => void }) {
+export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean) => void }) {
   const labelRef = useRef<HTMLSpanElement>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
   const [busy, setBusy] = useState(false)
@@ -72,11 +70,9 @@ export function AppSidebar({ dark, setDark }: { dark: boolean; setDark: (fn: (d:
     })
   }, [busy])
   return (
-    <Sidebar collapsible="offcanvas" variant="floating">
-      <SidebarHeader className="p-6">
-      </SidebarHeader>
-
-      <SidebarContent className="p-6">
+    <Sidebar collapsible="none" variant="floating">
+      <SidebarContent className="p-3 hide-scrollbar">
+        <FolderTree />
       </SidebarContent>
 
       <SidebarSeparator />

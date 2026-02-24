@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
-import './App.css'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
@@ -20,21 +18,19 @@ function App() {
 
   return (
     <SidebarProvider>
-      <AppSidebar dark={dark} setDark={setDark} />
+      <AppSidebar setDark={setDark} />
 
       <div className="relative flex flex-1 flex-col">
         {/* Mobile top bar — visible only below md */}
         <header className="flex items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar p-2 shadow-2xl md:hidden">
-          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <SidebarTrigger />
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p>Explore</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <SidebarTrigger />
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p>Explore</p>
+            </TooltipContent>
+          </Tooltip>
         </header>
 
         {/* Canvas */}

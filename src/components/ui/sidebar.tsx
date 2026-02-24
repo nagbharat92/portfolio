@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Bars3Icon } from "@heroicons/react/24/solid"
 
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useIsMobile } from "@/hooks/use-mobile.ts"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -139,7 +139,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
               className
             )}
             ref={ref}
@@ -178,6 +178,28 @@ const Sidebar = React.forwardRef<
     const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
     if (collapsible === "none") {
+      if (isMobile) {
+        return (
+          <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+            <SheetContent
+              dir={dir}
+              data-sidebar="sidebar"
+              data-slot="sidebar"
+              data-mobile="true"
+              className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+              style={
+                {
+                  "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+                } as React.CSSProperties
+              }
+              side={side}
+            >
+              <div className="flex h-full w-full flex-col">{children}</div>
+            </SheetContent>
+          </Sheet>
+        )
+      }
+
       return (
         <div
           data-slot="sidebar"
