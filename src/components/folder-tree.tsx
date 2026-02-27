@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback, createContext, useContext, type ReactNode } from "react"
 import { Folder, FolderOpen, ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { transitions } from "@/lib/motion"
 
 export interface FolderNode {
   id: string
@@ -159,7 +160,7 @@ function FolderItem({
         {hasChildren ? (
           <motion.span
             animate={{ rotate: isOpen ? 90 : 0 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
+            transition={transitions.microInteraction}
             className="flex shrink-0 items-center"
           >
             <ChevronRight className="size-3.5 text-sidebar-foreground/50" />
@@ -181,7 +182,7 @@ function FolderItem({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
+            transition={transitions.expand}
             className="flex flex-col gap-0.5 overflow-hidden"
           >
             {node.children!.map((child) => (
@@ -213,7 +214,18 @@ function collectParentIds(nodes: FolderNode[]): string[] {
   return ids
 }
 
-export function FolderTree() {
+// ---- Context to persist folder-tree state across mobile/desktop switches ----
+
+type FolderTreeContextValue = {
+  expandedIds: Set<string>
+  selectedId: string | null
+  toggle: (id: string) => void
+  select: (id: string) => void
+}
+
+const FolderTreeContext = createContext<FolderTreeContextValue | null>(null)
+
+export function FolderTreeProvider({ children }: { children: ReactNode }) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(
     new Set(collectParentIds(sampleFolders))
   )
@@ -231,6 +243,24 @@ export function FolderTree() {
     })
   }, [])
 
+  const value: FolderTreeContextValue = { expandedIds, selectedId, toggle, select: setSelectedId }
+
+  return (
+    <FolderTreeContext.Provider value={value}>
+      {children}
+    </FolderTreeContext.Provider>
+  )
+}
+
+function useFolderTree() {
+  const ctx = useContext(FolderTreeContext)
+  if (!ctx) throw new Error("useFolderTree must be used within FolderTreeProvider")
+  return ctx
+}
+
+export function FolderTree() {
+  const { expandedIds, selectedId, toggle, select } = useFolderTree()
+
   return (
     <ul className="flex flex-col gap-0.5">
       {sampleFolders.map((folder) => (
@@ -241,7 +271,7 @@ export function FolderTree() {
           expandedIds={expandedIds}
           toggle={toggle}
           selectedId={selectedId}
-          select={setSelectedId}
+          select={select}
         />
       ))}
     </ul>

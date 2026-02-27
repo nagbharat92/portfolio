@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
+import { FolderTreeProvider } from '@/components/folder-tree'
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +18,7 @@ function App() {
   }, [dark])
 
   return (
+    <FolderTreeProvider>
     <SidebarProvider>
       <AppSidebar setDark={setDark} />
 
@@ -38,6 +40,7 @@ function App() {
         </main>
       </div>
     </SidebarProvider>
+    </FolderTreeProvider>
   )
 }
 

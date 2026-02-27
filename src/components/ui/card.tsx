@@ -1,20 +1,47 @@
 import * as React from "react"
-
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-xl border border-border bg-card text-card-foreground shadow",
-      className
-    )}
-    {...props}
-  />
-))
+/**
+ * Visual variants for the Card component.
+ * Card is a container for grouping related content into a distinct visual unit.
+ *
+ * @variant default — Border, background, and shadow. Standard card appearance.
+ *                   Use when the card should read as a clearly separate surface
+ *                   from the page background.
+ * @variant ghost   — No border, transparent background, no shadow.
+ *                   Use when content needs card-like structure (header, content, footer)
+ *                   but should not appear as a visually distinct container —
+ *                   for example, a section within an already-elevated panel.
+ */
+const cardVariants = cva(
+  "rounded-xl text-card-foreground",
+  {
+    variants: {
+      variant: {
+        default: "border border-border bg-card shadow",
+        ghost:   "border-transparent bg-transparent shadow-none",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+export interface CardProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardVariants> {}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, variant, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(cardVariants({ variant }), className)}
+      {...props}
+    />
+  )
+)
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
@@ -73,4 +100,4 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export { Card, cardVariants, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }

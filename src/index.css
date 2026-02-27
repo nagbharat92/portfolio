@@ -12,6 +12,10 @@
 }
 
 @theme inline {
+  /* Font families */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Colors */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -51,8 +55,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    @apply bg-background text-foreground font-sans;
     background-image: radial-gradient(circle, hsl(var(--border)) 1.4px, transparent 1.4px);
     background-size: 24px 24px;
     -webkit-font-smoothing: antialiased;
@@ -64,65 +67,242 @@
   }
 }
 
+/* =============================================================================
+   PRIMITIVE TOKENS
+   The raw colour palette. Named by scale position, not by role.
+   These are the only place raw HSL values should live.
+   Never reference these directly in components — use semantic tokens instead.
+   ============================================================================= */
+
 :root {
-  --background: 0 0% 95%;
-  --foreground: 0 0% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 91%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
-  --radius: 1.5rem;
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 240 4.8% 90%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
+  /* Neutral gray — pure achromatic scale */
+  --gray-0:   0 0% 100%;
+  --gray-50:  0 0% 98%;
+  --gray-100: 0 0% 96.1%;
+  --gray-200: 0 0% 95%;
+  --gray-300: 0 0% 91%;
+  --gray-400: 0 0% 89.8%;
+  --gray-500: 0 0% 83.1%;
+  --gray-600: 0 0% 63.9%;
+  --gray-700: 0 0% 45.1%;
+  --gray-800: 0 0% 20.9%;
+  --gray-850: 0 0% 14.9%;
+  --gray-900: 0 0% 9%;
+  --gray-950: 0 0% 3.9%;
+
+  /* Slate — blue-tinted gray, used for sidebar surfaces */
+  --slate-100: 240 4.8% 95.9%;
+  --slate-200: 240 4.8% 90%;
+  --slate-300: 220 13% 91%;
+  --slate-700: 240 5.3% 26.1%;
+  --slate-800: 240 3.7% 22%;
+  --slate-850: 240 3.7% 15.9%;
+  --slate-900: 240 5.9% 10%;
+
+  /* Red — used exclusively for destructive/error states */
+  --red-500: 0 84.2% 60.2%;
+  --red-800: 0 62.8% 30.6%;
+
+  /* Blue — used exclusively for focus rings */
+  --blue-400: 217.2 91.2% 59.8%;
 }
 
+/* =============================================================================
+   TYPOGRAPHY TOKENS
+   Font family, weight, and scale conventions.
+   Sizes map to Tailwind's built-in text-* utilities.
+   Weights map to Tailwind's built-in font-* utilities.
+   These tokens are the reference point for all text decisions in the project.
+   ============================================================================= */
+
+:root {
+  /* Font family
+     Used via: font-sans (Tailwind utility, registered in @theme inline above)
+     Direct CSS reference: var(--font-sans) — for non-Tailwind contexts only */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Font weights
+     Used via: font-normal, font-medium, font-semibold, font-bold (Tailwind utilities)
+     Direct CSS reference: var(--font-weight-*) — for non-Tailwind contexts only */
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  /* Type scale — semantic intent reference
+     These are NOT new CSS properties. They are documentation.
+     The actual sizes come from Tailwind's built-in text-* utilities.
+
+     text-xs   (12px) — Badges, tooltips, timestamps, keyboard shortcuts
+     text-sm   (14px) — UI chrome: sidebar, buttons, inputs, labels, card descriptions
+     text-base (16px) — Primary body copy, article paragraphs
+     text-lg   (18px) — Lead paragraphs, intro text
+     text-xl   (20px) — Card headings, widget titles, minor section labels
+     text-2xl  (24px) — Subsection headings (h3)
+     text-3xl  (30px) — Section headings (h2)
+     text-4xl  (36px) — Page headings (h1)
+     text-5xl  (48px) — Hero / display text
+
+     Pairing guide:
+     text-xs   → leading-none,    font-medium
+     text-sm   → leading-snug,    font-normal
+     text-base → leading-relaxed, font-normal
+     text-lg   → leading-snug,    font-normal
+     text-xl   → leading-snug,    font-semibold
+     text-2xl  → leading-tight,   font-semibold  + tracking-tight
+     text-3xl  → leading-tight,   font-semibold  + tracking-tight
+     text-4xl  → leading-tight,   font-bold      + tracking-tight
+     text-5xl  → leading-none,    font-bold      + tracking-tight
+  */
+}
+
+/* =============================================================================
+   MOTION TOKENS
+   Duration and easing values for all animations in the project.
+   CSS animations consume these directly via var().
+   Framer Motion uses the mirrored values in src/lib/motion.ts.
+   If you change a value here, update motion.ts to match, and vice versa.
+   ============================================================================= */
+
+:root {
+  /* Duration
+     fast:       150ms — micro-interactions (icon rotation, hover state)
+     base:       200ms — standard transitions (expand/collapse, fades)
+     slow:       300ms — larger movements (drawers, panels, modals)
+     deliberate: 500ms — prominent animations (typewriter, hero reveals) */
+  --duration-fast:       150ms;
+  --duration-base:       200ms;
+  --duration-slow:       300ms;
+  --duration-deliberate: 500ms;
+
+  /* Easing — explicit cubic-bezier values to ensure CSS/JS parity
+     ease-out:    things arriving/decelerating — most common
+     ease-in:     things leaving/accelerating away
+     ease-in-out: symmetric transitions (expand/collapse)
+     ease-spring: subtle overshoot for physical feel — use sparingly */
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* =============================================================================
+   SEMANTIC TOKENS — LIGHT THEME
+   Maps design roles to primitive values.
+   This is what components consume. Change a role here to retheme.
+   ============================================================================= */
+
+:root {
+  /* Page background — the outermost surface behind all content */
+  --background:            var(--gray-200);
+  /* Default text and icon color — for content rendered on --background */
+  --foreground:            var(--gray-950);
+
+  /* Elevated container surface — cards, panels, inset content areas.
+     Lighter than --background to create visual depth. */
+  --card:                  var(--gray-0);
+  --card-foreground:       var(--gray-950);
+
+  /* Floating surface — dropdowns, popovers, command menus, tooltips.
+     Semantically distinct from --card even when the value is identical.
+     Kept separate so floating surfaces can diverge from cards independently. */
+  --popover:               var(--gray-0);
+  --popover-foreground:    var(--gray-950);
+
+  /* Main action color — primary buttons, active/selected states, key UI elements */
+  --primary:               var(--gray-900);
+  --primary-foreground:    var(--gray-50);
+
+  /* Secondary interactive surface — supporting buttons, tags, chips.
+     For actions that assist a primary action, not compete with it. */
+  --secondary:             var(--gray-100);
+  --secondary-foreground:  var(--gray-900);
+
+  /* De-emphasized surface and text.
+     --muted: background for disabled areas, skeletons, inactive sections.
+     --muted-foreground: hint text, placeholders, metadata, secondary descriptions.
+     Distinction from --secondary: muted is for non-interactive content; secondary is for interactive elements. */
+  --muted:                 var(--gray-100);
+  --muted-foreground:      var(--gray-700);
+
+  /* Hover and selection highlight — surface color when an interactive element is hovered or selected.
+     NOT a decorative or brand color. Use only for interaction feedback states. */
+  --accent:                var(--gray-300);
+  --accent-foreground:     var(--gray-900);
+
+  /* Error and irreversible action color — delete buttons, destructive confirmations, error messages.
+     Never repurpose for warnings (warnings should be a separate token when needed). */
+  --destructive:           var(--red-500);
+  --destructive-foreground: var(--gray-50);
+
+  /* Default border color — card edges, dividers, table lines */
+  --border:                var(--gray-400);
+  /* Input field border — currently identical to --border.
+     Kept separate so input borders can be styled independently of general borders. */
+  --input:                 var(--gray-400);
+  /* Keyboard focus ring — appears on focused interactive elements only.
+     Never use as a decorative border or divider. */
+  --ring:                  var(--gray-950);
+
+  --radius: 1.5rem;
+
+  /* Sidebar surface tokens — use the slate family for a subtly cooler sidebar tone.
+     These intentionally diverge from the main --background/--foreground to create
+     a visual separation between the navigation chrome and the content area. */
+  --sidebar-background:           var(--gray-50);
+  --sidebar-foreground:           var(--slate-700);
+  --sidebar-primary:              var(--slate-900);
+  --sidebar-primary-foreground:   var(--gray-50);
+  --sidebar-accent:               var(--slate-200);
+  --sidebar-accent-foreground:    var(--slate-900);
+  --sidebar-border:               var(--slate-300);
+  --sidebar-ring:                 var(--blue-400);
+}
+
+/* =============================================================================
+   SEMANTIC TOKENS — DARK THEME
+   Same roles as the light theme. Only the primitive mappings change.
+   Token intent and usage rules are identical — see the light theme comments above.
+   ============================================================================= */
+
 .dark {
-  --background: 0 0% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 14.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14.9%;
-  --muted-foreground: 0 0% 63.9%;
-  --accent: 0 0% 20.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 14.9%;
-  --input: 0 0% 14.9%;
-  --ring: 0 0% 83.1%;
-  --sidebar-background: 240 5.9% 10%;
-  --sidebar-foreground: 240 4.8% 95.9%;
-  --sidebar-primary: 0 0% 98%;
-  --sidebar-primary-foreground: 240 5.9% 10%;
-  --sidebar-accent: 240 3.7% 22%;
-  --sidebar-accent-foreground: 240 4.8% 95.9%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
+  --background:            var(--gray-950);
+  --foreground:            var(--gray-50);
+
+  --card:                  var(--gray-950);
+  --card-foreground:       var(--gray-50);
+
+  --popover:               var(--gray-950);
+  --popover-foreground:    var(--gray-50);
+
+  --primary:               var(--gray-50);
+  --primary-foreground:    var(--gray-900);
+
+  --secondary:             var(--gray-850);
+  --secondary-foreground:  var(--gray-50);
+
+  --muted:                 var(--gray-850);
+  --muted-foreground:      var(--gray-600);
+
+  --accent:                var(--gray-800);
+  --accent-foreground:     var(--gray-50);
+
+  --destructive:           var(--red-800);
+  --destructive-foreground: var(--gray-50);
+
+  --border:                var(--gray-850);
+  --input:                 var(--gray-850);
+  --ring:                  var(--gray-500);
+
+  /* Sidebar */
+  --sidebar-background:           var(--slate-900);
+  --sidebar-foreground:           var(--slate-100);
+  --sidebar-primary:              var(--gray-50);
+  --sidebar-primary-foreground:   var(--slate-900);
+  --sidebar-accent:               var(--slate-800);
+  --sidebar-accent-foreground:    var(--slate-100);
+  --sidebar-border:               var(--slate-850);
+  --sidebar-ring:                 var(--blue-400);
 }
 
 /* Typewriter copy-email animation */
@@ -137,11 +317,12 @@
 }
 
 .typewriter-text.typing-in {
-  animation: typeIn 0.5s ease-out forwards, blinkCaret 0.5s step-end 2;
+  animation: typeIn var(--duration-deliberate) var(--ease-out) forwards,
+             blinkCaret var(--duration-deliberate) step-end 2;
 }
 
 .typewriter-text.typing-out {
-  animation: typeOut 0.5s ease-out forwards;
+  animation: typeOut var(--duration-deliberate) var(--ease-out) forwards;
 }
 
 .typewriter-text.idle {

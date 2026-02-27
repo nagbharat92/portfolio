@@ -28,6 +28,19 @@ const SheetOverlay = React.forwardRef<
 ))
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
 
+/**
+ * Side variants for the Sheet component.
+ * Sheet is a panel that slides in from an edge of the viewport, used for
+ * navigation drawers, detail panels, filters, or secondary content.
+ *
+ * @variant right  — Slides in from the right edge (default). Use for detail panels,
+ *                   settings drawers, and contextual information.
+ * @variant left   — Slides in from the left edge. Use for primary navigation drawers.
+ * @variant top    — Slides in from the top edge. Use for notification trays
+ *                   or mobile search overlays.
+ * @variant bottom — Slides in from the bottom edge. Use for mobile action sheets
+ *                   or confirmation dialogs on small screens.
+ */
 const sheetVariants = cva(
   "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
   {
