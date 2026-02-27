@@ -169,10 +169,12 @@
      fast:       150ms — micro-interactions (icon rotation, hover state)
      base:       200ms — standard transitions (expand/collapse, fades)
      slow:       300ms — larger movements (drawers, panels, modals)
-     deliberate: 500ms — prominent animations (typewriter, hero reveals) */
+     measured:   500ms — mid-length animations (typewriter)
+     deliberate: 1000ms — prominent animations (theme cross-fade, hero reveals) */
   --duration-fast:       150ms;
   --duration-base:       200ms;
   --duration-slow:       300ms;
+  --duration-measured:   500ms;
   --duration-deliberate: 1000ms;
 
   /* Easing — explicit cubic-bezier values to ensure CSS/JS parity
@@ -356,12 +358,12 @@ button:not([data-animating]):hover .typewriter-text {
 }
 
 .typewriter-text.typing-in {
-  animation: typeIn var(--duration-deliberate) var(--ease-out) forwards,
-             blinkCaret var(--duration-deliberate) step-end 2;
+  animation: typeIn var(--duration-measured) var(--ease-in) forwards,
+             blinkCaret var(--duration-measured) step-end 2;
 }
 
 .typewriter-text.typing-out {
-  animation: typeOut var(--duration-deliberate) var(--ease-out) forwards;
+  animation: typeOut var(--duration-measured) var(--ease-out) forwards;
 }
 
 .typewriter-text.idle {

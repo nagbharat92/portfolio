@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { FolderTreeProvider } from '@/components/folder-tree'
+import { Canvas } from '@/components/canvas'
 import {
   Tooltip,
   TooltipContent,
@@ -29,20 +30,24 @@ function App() {
       <AppSidebar setDark={setDark} />
 
       <div className="relative flex flex-1 flex-col">
-        {/* Mobile top bar — visible only below md */}
-        <header className="flex items-center gap-2 rounded-xl border border-sidebar-border bg-sidebar p-2 shadow-2xl md:hidden">
+        {/* Mobile toolbar — invisible container, visible only below md */}
+        <div className="flex items-center justify-between md:hidden">
+          {/* Left actions */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <SidebarTrigger />
+              <SidebarTrigger className="rounded-xl border border-sidebar-border bg-sidebar shadow-2xl" />
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Explore</p>
             </TooltipContent>
           </Tooltip>
-        </header>
+
+          {/* Right actions (future) */}
+        </div>
 
         {/* Canvas */}
         <main className="relative flex-1">
+          <Canvas />
         </main>
       </div>
     </SidebarProvider>
