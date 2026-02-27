@@ -14,7 +14,13 @@ function App() {
   )
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark)
+    const toggle = () => document.documentElement.classList.toggle('dark', dark)
+
+    if (document.startViewTransition) {
+      document.startViewTransition(toggle)
+    } else {
+      toggle()
+    }
   }, [dark])
 
   return (

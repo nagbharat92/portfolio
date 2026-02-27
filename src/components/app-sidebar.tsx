@@ -33,6 +33,9 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
       ta.remove()
     }
 
+    // Remove underline hover during animation
+    btn.dataset.animating = "true"
+
     // Phase 1: erase "email me"
     label.className = "typewriter-text typing-out"
 
@@ -62,6 +65,7 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
               label.removeEventListener("animationend", onRestored)
               label.className = "typewriter-text idle"
               btn.classList.remove("pointer-events-none", "cursor-default")
+              delete btn.dataset.animating
               setBusy(false)
             })
           })
