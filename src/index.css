@@ -385,6 +385,55 @@ button:not([data-animating]):hover .typewriter-text {
   50% { border-color: transparent; }
 }
 
+/* =============================================================================
+   CONTENT ENTRANCE ANIMATIONS
+   Fade-in-up for content elements, flat fade for containers.
+   Stagger via two tokens: --stagger-base and --stagger-growth.
+   Each element sets --i (its index) and the delay is computed via calc().
+
+   delay(i) = i * base + i*(i-1)/2 * growth
+   This produces a decelerating schedule automatically.
+
+   Tuning:
+     Tighter wave   → lower --stagger-base  (try 60ms)
+     More decel     → raise --stagger-growth (try 20ms)
+     Uniform gaps   → set --stagger-growth: 0ms
+     Easing: expo-out — fast arrival, long soft tail.
+   ============================================================================= */
+
+:root {
+  --stagger-base:   100ms;
+  --stagger-growth:  10ms;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in-up {
+  --i: 0;
+  animation: fade-in-up 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * var(--stagger-base) + var(--i) * (var(--i) - 1) / 2 * var(--stagger-growth));
+}
+
+.animate-fade-in {
+  --i: 0;
+  animation: fade-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i) * var(--stagger-base) + var(--i) * (var(--i) - 1) / 2 * var(--stagger-growth));
+}
+
 /* App layout */
 #root {
   height: 100vh;

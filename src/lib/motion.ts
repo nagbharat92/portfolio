@@ -76,3 +76,14 @@ export const transitions = {
     ease: ease.out,
   },
 } as const
+
+/**
+ * Content entrance animations are now handled entirely by CSS keyframes
+ * defined in src/index.css (fade-in-up, fade-in, delay classes).
+ *
+ * Framer Motion is still used for:
+ *   - AnimatePresence page crossfades (canvas.tsx)
+ *   - Micro-interactions (folder-tree chevron, expand/collapse)
+ *
+ * See docs/motion/content-transition-prd.md for the full spec.
+ */

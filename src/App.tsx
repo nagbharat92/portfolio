@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { FolderTreeProvider } from '@/components/folder-tree'
 import { Canvas } from '@/components/canvas'
+import { CanvasActions } from '@/components/canvas-toolbar'
 import {
   Tooltip,
   TooltipContent,
@@ -42,7 +43,8 @@ function App() {
             </TooltipContent>
           </Tooltip>
 
-          {/* Right actions (future) */}
+          {/* Right actions */}
+          <CanvasActions />
         </div>
 
         {/* Canvas */}

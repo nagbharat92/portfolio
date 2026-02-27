@@ -1,37 +1,69 @@
-/**
- * pages.ts — Portfolio content data
- *
- * Single source of truth for sidebar navigation and all canvas page content.
- *
- * Structure:
- *   FolderNode  — grouping container. Has children. No canvas view of its own.
- *   PageNode    — content item. Has a canvas view. Always a leaf node.
- *
- * Authoring content:
- *   Every PageNode has a `blocks` array — an ordered list of typed content blocks.
- *   Add, remove, or reorder blocks freely. The canvas renders whatever is in the array.
- *
- *   Standard block types:
- *     iframe   — live project preview (4:3 aspect ratio, contained width)
- *     stats    — horizontal metadata strip (tools, year, links)
- *     text     — optional title + markdown body
- *     image    — full-width image (any URL, including Google Drive)
- *     video    — YouTube embed (use /embed/VIDEO_ID format)
- *     divider  — visual separator between sections
- *
- *   Escape hatch:
- *     custom   — maps to a registered React component via componentId
- *                use only when no standard block type fits
- *
- *   To add a new block type: see the Block union type below.
- *
- * To add a new project:
- *   Add a PageNode to the appropriate FolderNode's children array.
- *
- * To add a new category:
- *   Add a FolderNode at the top level of sidebarData.
- */
+# Feature Canvas PRD 04 — Data Model Refactor
 
+---
+
+## Model and Mode
+
+```
+Model:   Claude Opus 4.6
+Mode:    Agent
+Context: Standard
+```
+
+**Instruction for Agent mode:**
+```
+Read @docs/features/canvas/feature-canvas-prd-04-data-model-refactor.md in full before doing anything.
+Execute all changes described in the Target State section in order.
+Modify exactly these files:
+  MODIFY: src/data/pages.ts
+Touch no other files. Run the verification checklist when done.
+```
+
+---
+
+## What This PRD Does
+
+Replaces the flat fields on `PageNode` with a composable `blocks` array — for every page in the canvas, including Home. This is a purely structural change. No UI is touched. After this PRD, every page's content is an ordered list of typed blocks that can be freely composed, reordered, and extended.
+
+This is the foundation that PRD 05 (ProjectCanvas UI) builds on top of.
+
+---
+
+## What This PRD Does NOT Do
+
+- Build any UI. The canvas still shows `HomeCanvas` and `ProjectPlaceholder` after this runs.
+- Touch `canvas.tsx`, `home-canvas.tsx`, `folder-tree.tsx`, or any component file.
+- Change `FolderNode`, `SidebarNode`, or any helper functions.
+
+---
+
+## Why every page uses blocks — including Home
+
+The previous version treated Home as a special case: no blocks, content hardcoded directly in `home-canvas.tsx`. This created two different systems — one data-driven, one component-driven — for the same problem.
+
+Every canvas page is now expressed as blocks. Home uses a `custom` block for its unique display elements (the large name + tagline header, and the social links row). Everything else in the canvas uses standard block types. There is no more special-casing in the data layer.
+
+The `home-canvas.tsx` component is not deleted in this PRD — it stays in place until PRD 05 retires it when the block renderer is built. But Home's content of record is now in `pages.ts`.
+
+---
+
+## The `custom` block — escape hatch
+
+Six standard block types handle the vast majority of content needs. The `custom` block is a deliberate escape hatch for content that has unique display requirements that don't map to any standard type.
+
+A `custom` block carries a `componentId` string. In PRD 05, a component registry will map `componentId` strings to actual React components. The data stays clean; the rendering logic lives in the UI layer.
+
+Use `custom` sparingly. Before reaching for it, ask whether a standard block type could cover the need. It exists for genuinely unique cases — like Home's hero display and social links — not as a shortcut to avoid fitting content into the system.
+
+---
+
+## Target State
+
+### 1. Block types
+
+Add all block type definitions to `src/data/pages.ts`, immediately before the `PageNode` type. Replace the existing `// ─── Types ───` section entirely with the following:
+
+```ts
 // ─── Block types ──────────────────────────────────────────────────────────────
 
 /**
@@ -141,7 +173,15 @@ export type Block =
   | CustomBlock
 
 // ─── Node types ───────────────────────────────────────────────────────────────
+```
 
+---
+
+### 2. Updated PageNode
+
+Replace the current `PageNode` type with this. Remove `url`, `description`, `techStack`, and `content`. Add `blocks`.
+
+```ts
 export type PageNode = {
   id: string
   type: 'page'
@@ -150,18 +190,59 @@ export type PageNode = {
   featured?: boolean  // reserved — not used in UI yet
   blocks?: Block[]    // ordered content blocks — undefined means no canvas content
 }
+```
 
-export type FolderNode = {
-  id: string
-  type: 'folder'
-  name: string
-  children: SidebarNode[]
-}
+`FolderNode` and `SidebarNode` are unchanged.
 
-export type SidebarNode = FolderNode | PageNode
+---
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+### 3. Updated file header comment
 
+Replace the current JSDoc block at the very top of the file with this:
+
+```ts
+/**
+ * pages.ts — Portfolio content data
+ *
+ * Single source of truth for sidebar navigation and all canvas page content.
+ *
+ * Structure:
+ *   FolderNode  — grouping container. Has children. No canvas view of its own.
+ *   PageNode    — content item. Has a canvas view. Always a leaf node.
+ *
+ * Authoring content:
+ *   Every PageNode has a `blocks` array — an ordered list of typed content blocks.
+ *   Add, remove, or reorder blocks freely. The canvas renders whatever is in the array.
+ *
+ *   Standard block types:
+ *     iframe   — live project preview (4:3 aspect ratio, contained width)
+ *     stats    — horizontal metadata strip (tools, year, links)
+ *     text     — optional title + markdown body
+ *     image    — full-width image (any URL, including Google Drive)
+ *     video    — YouTube embed (use /embed/VIDEO_ID format)
+ *     divider  — visual separator between sections
+ *
+ *   Escape hatch:
+ *     custom   — maps to a registered React component via componentId
+ *                use only when no standard block type fits
+ *
+ *   To add a new block type: see the Block union type below.
+ *
+ * To add a new project:
+ *   Add a PageNode to the appropriate FolderNode's children array.
+ *
+ * To add a new category:
+ *   Add a FolderNode at the top level of sidebarData.
+ */
+```
+
+---
+
+### 4. Updated sidebarData
+
+Replace the entire `sidebarData` array with the following. Every page now has `blocks`.
+
+```ts
 export const sidebarData: SidebarNode[] = [
   {
     id: 'home',
@@ -261,56 +342,30 @@ This is that collection. Unpolished by design. The point was never the output.`,
     ],
   },
 ]
+```
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+---
 
-/**
- * Find a PageNode anywhere in the tree by id.
- * Returns null if not found or if the id belongs to a folder.
- */
-export function findPage(nodes: SidebarNode[], id: string): PageNode | null {
-  for (const node of nodes) {
-    if (node.type === 'page' && node.id === id) return node
-    if (node.type === 'folder') {
-      const found = findPage(node.children, id)
-      if (found) return found
-    }
-  }
-  return null
-}
+## What does NOT change
 
-/**
- * Collect the ids of all folder nodes in the tree.
- * Used to set the initial expanded state — all folders start open.
- */
-export function collectFolderIds(nodes: SidebarNode[]): string[] {
-  const ids: string[] = []
-  for (const node of nodes) {
-    if (node.type === 'folder') {
-      ids.push(node.id)
-      ids.push(...collectFolderIds(node.children))
-    }
-  }
-  return ids
-}
+- `FolderNode` — unchanged.
+- `SidebarNode` — unchanged.
+- `findPage()` — unchanged.
+- `collectFolderIds()` — unchanged.
+- `findAncestorFolderIds()` — unchanged.
+- `home-canvas.tsx` — stays in place. Still renders Home for now. Retired in PRD 05.
+- `canvas.tsx` — routing logic unchanged. Updated in PRD 05.
+- `project-placeholder.tsx` — still renders for project pages. Replaced in PRD 05.
+- Every other file — untouched.
 
-/**
- * Returns the ids of all ancestor FolderNodes that contain the page with the
- * given id. Used to auto-expand the sidebar when restoring a page from the URL.
- * Returns an empty array if the page is at the root or not found.
- */
-export function findAncestorFolderIds(
-  nodes: SidebarNode[],
-  pageId: string,
-  ancestors: string[] = []
-): string[] {
-  for (const node of nodes) {
-    if (node.type === 'folder') {
-      const found = findAncestorFolderIds(node.children, pageId, [...ancestors, node.id])
-      if (found.length > 0) return found
-    } else if (node.id === pageId) {
-      return ancestors
-    }
-  }
-  return []
-}
+---
+
+## Verification checklist
+
+This PRD only changes types and data. No visual change in the browser.
+
+1. Run `npx tsc --noEmit`. Zero errors expected.
+2. Run `npm run dev`. Dev server starts, no console errors.
+3. Home canvas still renders correctly — `home-canvas.tsx` is still active.
+4. Click Experiment 1 — placeholder still shows (name + "Full project view coming in PRD 03"). Correct.
+5. In VS Code, hover over any block in `sidebarData` — TypeScript shows the correct block type with autocomplete for all seven block types including `custom`.

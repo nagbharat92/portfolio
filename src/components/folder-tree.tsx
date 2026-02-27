@@ -1,6 +1,7 @@
 import {
   useState,
   useCallback,
+  useEffect,
   createContext,
   useContext,
   type ReactNode,
@@ -17,6 +18,7 @@ import {
   sidebarData,
   findPage,
   collectFolderIds,
+  findAncestorFolderIds,
 } from "@/data/pages"
 
 // ─── Depth padding ────────────────────────────────────────────────────────────
@@ -134,15 +136,40 @@ type FolderTreeContextValue = {
 
 const FolderTreeContext = createContext<FolderTreeContextValue | null>(null)
 
-export function FolderTreeProvider({ children }: { children: ReactNode }) {
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    new Set<string>()
-  )
+const STORAGE_KEY = 'portfolio-sidebar-expanded'
 
-  // Home is selected by default
-  const [selectedId, setSelectedId] = useState<string | null>('home')
-  const [selectedPage, setSelectedPage] = useState<PageNode | null>(
-    findPage(sidebarData, 'home')
+/** Reads the page id from the URL hash. Returns 'home' as fallback. */
+function getInitialPageId(): string {
+  const hash = window.location.hash // e.g. "#/experiment-1"
+  const id = hash.replace(/^#\//, '').trim()
+  return id && findPage(sidebarData, id) ? id : 'home'
+}
+
+/** Reads expanded folder ids from localStorage. Returns an empty array on failure. */
+function getStoredExpandedIds(): string[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+export function FolderTreeProvider({ children }: { children: ReactNode }) {
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
+    const initialPageId = getInitialPageId()
+    const stored = getStoredExpandedIds()
+    const ancestors = findAncestorFolderIds(sidebarData, initialPageId)
+    // Merge stored + ancestors so the restored page's parent folders are visible
+    return new Set([...stored, ...ancestors])
+  })
+
+  const [selectedId, setSelectedId] = useState<string | null>(() => getInitialPageId())
+
+  const [selectedPage, setSelectedPage] = useState<PageNode | null>(() =>
+    findPage(sidebarData, getInitialPageId())
   )
 
   const toggle = useCallback((id: string) => {
@@ -150,6 +177,8 @@ export function FolderTreeProvider({ children }: { children: ReactNode }) {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
+      // Persist to localStorage
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]))
       return next
     })
   }, [])
@@ -157,6 +186,26 @@ export function FolderTreeProvider({ children }: { children: ReactNode }) {
   const select = useCallback((id: string) => {
     setSelectedId(id)
     setSelectedPage(findPage(sidebarData, id))
+    window.location.hash = `/${id}`
+  }, [])
+
+  useEffect(() => {
+    function onHashChange() {
+      const hash = window.location.hash.replace(/^#\//, '').trim()
+      const id = hash && findPage(sidebarData, hash) ? hash : 'home'
+      setSelectedId(id)
+      setSelectedPage(findPage(sidebarData, id))
+      // Auto-expand ancestors of the restored page
+      const ancestors = findAncestorFolderIds(sidebarData, id)
+      if (ancestors.length > 0) {
+        setExpandedIds((prev) => {
+          const next = new Set([...prev, ...ancestors])
+          return next
+        })
+      }
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
   }, [])
 
   return (
