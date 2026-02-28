@@ -17,7 +17,7 @@ export function Canvas() {
   const { selectedPage } = useFolderTree()
 
   return (
-    <div className="relative h-full w-full overflow-hidden">
+    <div className="relative h-full w-full">
       <AnimatePresence mode="wait">
         {selectedPage && (
           <motion.div

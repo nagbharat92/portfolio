@@ -22,15 +22,8 @@ import {
 } from "@/data/pages"
 
 // ─── Depth padding ────────────────────────────────────────────────────────────
-
-const depthPadding: Record<number, string> = {
-  0: "pl-2",
-  1: "pl-6",
-  2: "pl-10",
-  3: "pl-14",
-  4: "pl-18",
-  5: "pl-22",
-}
+// Computed from spacing tokens: base indent + depth × step.
+// Eliminates the static lookup table and scales to any depth.
 
 // ─── FolderItem ───────────────────────────────────────────────────────────────
 
@@ -61,13 +54,13 @@ function FolderItem({
           else select(node.id)
         }}
         className={cn(
-          "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground",
+          "flex w-full items-center gap-(--tree-item-gap) rounded-md px-(--tree-item-px) py-(--tree-item-py) text-sm text-sidebar-foreground",
           "transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
           "outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
           "cursor-pointer",
           isSelected && "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
-          depthPadding[depth] ?? "pl-2"
         )}
+        style={{ paddingLeft: `calc(var(--tree-indent-base) + ${depth} * var(--tree-indent-step))` }}
       >
         {/* Chevron — only for folders */}
         {isFolder ? (

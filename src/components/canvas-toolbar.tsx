@@ -1,10 +1,5 @@
 import { ExternalLink } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { IconButton } from "@/components/ui/icon-button"
 import { useFolderTree } from "@/components/folder-tree"
 import type { IframeBlock, PageNode } from "@/data/pages"
 
@@ -33,22 +28,17 @@ export function CanvasActions({ page }: CanvasActionsProps = {}) {
   if (!iframeBlock) return null
 
   return (
-    <div className="flex items-center gap-1">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="ghost" size="icon" asChild>
-            <a
-              href={iframeBlock.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Open project in new tab"
-            >
-              <ExternalLink className="size-4" />
-            </a>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Open in new tab</TooltipContent>
-      </Tooltip>
+    <div className="flex items-center gap-(--toolbar-button-gap)">
+      <IconButton variant="filled" tooltip="Open in new tab" tooltipSide="bottom" asChild>
+        <a
+          href={iframeBlock.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open project in new tab"
+        >
+          <ExternalLink className="size-4" />
+        </a>
+      </IconButton>
     </div>
   )
 }

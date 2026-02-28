@@ -13,7 +13,7 @@ export function IframeBlockRenderer({ block, index }: { block: IframeBlock; inde
         />
       </div>
       {block.caption && (
-        <p className="mt-2 text-center text-sm text-muted-foreground">
+        <p className="mt-(--caption-gap) text-center text-sm text-muted-foreground">
           {block.caption}
         </p>
       )}

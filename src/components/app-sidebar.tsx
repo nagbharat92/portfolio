@@ -75,13 +75,13 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
   }, [busy])
   return (
     <Sidebar collapsible="none" variant="floating">
-      <SidebarContent className="p-3 hide-scrollbar">
+      <SidebarContent className="p-(--sidebar-content-padding) hide-scrollbar">
         <FolderTree />
       </SidebarContent>
 
       <SidebarSeparator />
 
-      <SidebarFooter className="p-6">
+      <SidebarFooter className="p-(--sidebar-footer-padding)">
         <p className="text-sm text-sidebar-foreground/70">
           Find me on{" "}
           <a href="https://x.com/bharatnag92" target="_blank" rel="noopener noreferrer" className={linkClasses}>

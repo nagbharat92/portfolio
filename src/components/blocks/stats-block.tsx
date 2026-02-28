@@ -5,7 +5,7 @@ import type { StatsBlock } from "@/data/pages"
 export function StatsBlockRenderer({ block, index }: { block: StatsBlock; index: number }) {
   return (
     <FadeInUp i={index}>
-      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5">
+      <div className="flex flex-wrap items-center gap-x-(--stats-gap) gap-y-(--stats-gap)">
         {block.items.map((item, i) => (
           <Fragment key={i}>
             {i > 0 && (

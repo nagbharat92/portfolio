@@ -30,13 +30,13 @@ function App() {
     <SidebarProvider>
       <AppSidebar setDark={setDark} />
 
-      <div className="relative flex flex-1 flex-col">
-        {/* Mobile toolbar — invisible container, visible only below md */}
-        <div className="flex items-center justify-between md:hidden">
+      <div className="relative flex flex-1 min-h-0">
+        {/* Mobile toolbar — absolutely positioned, visible only below md */}
+        <div className="absolute top-(--page-inset) left-(--page-inset) right-(--page-inset) z-10 flex items-center justify-between md:hidden">
           {/* Left actions */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <SidebarTrigger className="rounded-xl border border-sidebar-border bg-sidebar shadow-2xl" />
+              <SidebarTrigger variant="filled" />
             </TooltipTrigger>
             <TooltipContent side="bottom">
               <p>Explore</p>
@@ -47,8 +47,8 @@ function App() {
           <CanvasActions />
         </div>
 
-        {/* Canvas */}
-        <main className="relative flex-1">
+        {/* Canvas — full bleed, scrolls independently */}
+        <main className="flex-1 min-h-0">
           <Canvas />
         </main>
       </div>

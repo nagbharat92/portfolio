@@ -12,7 +12,7 @@ export function ImageBlockRenderer({ block, index }: { block: ImageBlock; index:
           loading="lazy"
         />
         {block.caption && (
-          <figcaption className="mt-2 text-center text-sm text-muted-foreground">
+          <figcaption className="mt-(--caption-gap) text-center text-sm text-muted-foreground">
             {block.caption}
           </figcaption>
         )}

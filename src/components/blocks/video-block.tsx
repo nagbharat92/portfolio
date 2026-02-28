@@ -15,7 +15,7 @@ export function VideoBlockRenderer({ block, index }: { block: VideoBlock; index:
         />
       </div>
       {block.caption && (
-        <p className="mt-2 text-center text-sm text-muted-foreground">
+        <p className="mt-(--caption-gap) text-center text-sm text-muted-foreground">
           {block.caption}
         </p>
       )}

@@ -139,7 +139,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex gap-(--layout-gap) h-full w-full has-[[data-variant=inset]]:bg-sidebar",
               className
             )}
             ref={ref}
@@ -207,7 +207,7 @@ const Sidebar = React.forwardRef<
           <div
             data-slot="sidebar"
             className={cn(
-              "fixed left-[2.5rem] top-[2.5rem] bottom-[2.5rem] z-10 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground rounded-xl border border-sidebar-border shadow-2xl",
+              "fixed left-(--page-inset) top-(--page-inset) bottom-(--page-inset) z-10 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground rounded-xl border border-sidebar-border shadow-2xl",
               className
             )}
             ref={ref}
@@ -267,7 +267,7 @@ const Sidebar = React.forwardRef<
           className={cn(
             "fixed z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
             variant === "floating" || variant === "inset"
-              ? "top-[2.5rem] bottom-[2.5rem] data-[side=left]:left-[2.5rem] data-[side=right]:right-[2.5rem]"
+              ? "top-(--page-inset) bottom-(--page-inset) data-[side=left]:left-(--page-inset) data-[side=right]:right-(--page-inset)"
               : "inset-y-0 data-[side=left]:left-0 data-[side=right]:right-0",
             "data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[collapsible=icon]:overflow-hidden",
@@ -401,7 +401,7 @@ const SidebarHeader = React.forwardRef<
       ref={ref}
       data-sidebar="header"
       data-slot="sidebar-header"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-(--sidebar-section-gap) p-(--sidebar-section-padding)", className)}
       {...props}
     />
   )
@@ -417,7 +417,7 @@ const SidebarFooter = React.forwardRef<
       ref={ref}
       data-sidebar="footer"
       data-slot="sidebar-footer"
-      className={cn("flex flex-col gap-2 p-2", className)}
+      className={cn("flex flex-col gap-(--sidebar-section-gap) p-(--sidebar-section-padding)", className)}
       {...props}
     />
   )
@@ -433,7 +433,7 @@ const SidebarSeparator = React.forwardRef<
       ref={ref}
       data-sidebar="separator"
       data-slot="sidebar-separator"
-      className={cn("mx-2 w-auto bg-sidebar-border", className)}
+      className={cn("mx-(--sidebar-separator-mx) w-auto bg-sidebar-border", className)}
       {...props}
     />
   )
@@ -450,7 +450,7 @@ const SidebarContent = React.forwardRef<
       data-sidebar="content"
       data-slot="sidebar-content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-(--sidebar-section-gap) overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
@@ -468,7 +468,7 @@ const SidebarGroup = React.forwardRef<
       ref={ref}
       data-sidebar="group"
       data-slot="sidebar-group"
-      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
+      className={cn("relative flex w-full min-w-0 flex-col p-(--sidebar-section-padding)", className)}
       {...props}
     />
   )
@@ -487,7 +487,7 @@ const SidebarGroupLabel = React.forwardRef<
       data-sidebar="group-label"
       data-slot="sidebar-group-label"
       className={cn(
-        "flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+        "flex h-8 shrink-0 items-center rounded-md px-(--sidebar-section-padding) text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
         className
       )}

@@ -7,7 +7,7 @@ export function TextBlockRenderer({ block, index }: { block: TextBlock; index: n
   return (
     <FadeInUp i={index}>
       {block.title && (
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-4">
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-(--text-gap)">
           {block.title}
         </h2>
       )}
@@ -16,7 +16,7 @@ export function TextBlockRenderer({ block, index }: { block: TextBlock; index: n
           remarkPlugins={[remarkGfm]}
           components={{
             p: ({ children }) => (
-              <p className="text-base leading-relaxed text-foreground/80 mb-4 last:mb-0">
+              <p className="text-base leading-relaxed text-foreground/80 mb-(--text-gap) last:mb-0">
                 {children}
               </p>
             ),
@@ -37,18 +37,18 @@ export function TextBlockRenderer({ block, index }: { block: TextBlock; index: n
               </a>
             ),
             ul: ({ children }) => (
-              <ul className="list-disc pl-5 mb-4 text-foreground/80 space-y-1">{children}</ul>
+              <ul className="list-disc pl-(--list-indent) mb-(--text-gap) text-foreground/80 space-y-1">{children}</ul>
             ),
             ol: ({ children }) => (
-              <ol className="list-decimal pl-5 mb-4 text-foreground/80 space-y-1">{children}</ol>
+              <ol className="list-decimal pl-(--list-indent) mb-(--text-gap) text-foreground/80 space-y-1">{children}</ol>
             ),
             li: ({ children }) => <li className="text-base leading-relaxed">{children}</li>,
             code: ({ children }) => (
-              <code className="px-1.5 py-0.5 rounded-md bg-muted font-mono text-sm">
+              <code className="px-(--code-px) py-(--code-py) rounded-md bg-muted font-mono text-sm">
                 {children}
               </code>
             ),
-            hr: () => <hr className="border-border my-6" />,
+            hr: () => <hr className="border-border my-(--hr-gap)" />,
           }}
         >
           {block.body}

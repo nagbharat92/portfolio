@@ -53,6 +53,23 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-width: thin;
+  }
+  /* WebKit scrollbar fallback (Safari / older Chrome) */
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
   }
   body {
     @apply bg-background text-foreground font-sans;
@@ -193,6 +210,99 @@
   --ease-in:     cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* =============================================================================
+   SPACING TOKENS
+   A two-tier spacing system mirroring the colour token architecture.
+   Primitive tokens hold raw rem values; semantic tokens reference primitives.
+   Components consume semantic tokens only — never raw numbers.
+   ============================================================================= */
+
+:root {
+  /* ── Primitive scale ──────────────────────────────────────────────────────
+     Named by size, not by role. Only place raw spacing values should live. */
+  --space-0_5:  0.125rem;  /*  2px */
+  --space-1:    0.25rem;   /*  4px */
+  --space-1_5:  0.375rem;  /*  6px */
+  --space-2:    0.5rem;    /*  8px */
+  --space-3:    0.75rem;   /* 12px */
+  --space-4:    1rem;      /* 16px */
+  --space-5:    1.25rem;   /* 20px */
+  --space-6:    1.5rem;    /* 24px */
+  --space-8:    2rem;      /* 32px */
+  --space-10:   2.5rem;    /* 40px */
+  --space-13:   3.25rem;   /* 52px */
+  --space-16:   4rem;      /* 64px */
+
+  /* ── Layout ───────────────────────────────────────────────────────────────
+     Page-level geometry: outer inset, sidebar↔content gap. */
+  --page-inset: var(--space-6);         /* Mobile: 24px outer margin         */
+  --layout-gap: var(--page-inset);      /* Sidebar↔content gap = page inset  */
+
+  /* ── Content column ───────────────────────────────────────────────────────
+     Horizontal and vertical padding of the scrollable content area. */
+  --content-px:        var(--space-6);  /* 24px horizontal padding           */
+  --content-pt:        5rem;            /* 80px top padding (mobile)         */
+  --content-pt-home:   7.5rem;          /* 120px top padding — home page     */
+  --content-py:        7.5rem;          /* 120px vertical padding (mobile)   */
+  --content-py-mobile: 7.5rem;          /* 120px vertical padding (mobile)   */
+
+  /* ── Toolbar ──────────────────────────────────────────────────────────────
+     Canvas top toolbar spacing. */
+  --toolbar-px:         var(--space-4); /* 16px horizontal padding           */
+  --toolbar-min-h:      var(--space-13);/* 52px minimum height               */
+  --toolbar-button-gap: var(--space-1); /*  4px gap between action buttons   */
+
+  /* ── Blocks ───────────────────────────────────────────────────────────────
+     Vertical rhythm between content blocks and within block internals. */
+  --block-gap:          var(--space-10);  /* 40px default gap between blocks   */
+  --block-gap-tight:    var(--space-4);   /* 16px tight gap (stats below card) */
+  --caption-gap:        var(--space-2);   /*  8px media → caption              */
+  --text-gap:           var(--space-4);   /* 16px paragraph / heading bottom   */
+  --hr-gap:             var(--space-6);   /* 24px horizontal rule top+bottom   */
+  --list-indent:        var(--space-5);   /* 20px list left padding            */
+  --code-px:            var(--space-1_5); /*  6px inline code horizontal       */
+  --code-py:            var(--space-0_5); /*  2px inline code vertical         */
+
+  /* ── Hero ─────────────────────────────────────────────────────────────────
+     Home hero block spacing. */
+  --hero-subtitle-gap:  var(--space-3);   /* 12px title → subtitle             */
+  --hero-divider-gap:   var(--space-10);  /* 40px subtitle → divider line      */
+
+  /* ── Social links ─────────────────────────────────────────────────────────
+     Home social bar spacing. */
+  --social-gap-x:       var(--space-6);   /* 24px horizontal gap               */
+  --social-gap-y:       var(--space-2);   /*  8px vertical wrap gap             */
+
+  /* ── Stats ────────────────────────────────────────────────────────────────
+     Stats block item spacing. */
+  --stats-gap:          var(--space-1_5); /*  6px gap between stat items       */
+
+  /* ── Sidebar internals ────────────────────────────────────────────────────
+     Spacing within the sidebar panel itself. */
+  --sidebar-section-padding: var(--space-2); /*  8px header / group padding   */
+  --sidebar-content-padding: var(--space-3); /* 12px content area padding     */
+  --sidebar-footer-padding:  var(--space-6); /* 24px footer padding           */
+  --sidebar-separator-mx:    var(--space-2); /*  8px separator horiz. margin  */
+  --sidebar-section-gap:     var(--space-2); /*  8px gap between sections     */
+
+  /* ── Folder tree ──────────────────────────────────────────────────────────
+     Tree item spacing and depth indentation. */
+  --tree-item-px:     var(--space-2);   /*  8px item horizontal padding      */
+  --tree-item-py:     var(--space-1_5); /*  6px item vertical padding        */
+  --tree-item-gap:    var(--space-2);   /*  8px icon↔label gap               */
+  --tree-indent-base: var(--space-2);   /*  8px base indent (depth 0)        */
+  --tree-indent-step: var(--space-4);   /* 16px additional indent per level  */
+}
+
+/* Desktop overrides — layout tokens scale up at ≥768px */
+@media (min-width: 768px) {
+  :root {
+    --page-inset: var(--space-10);        /* 40px outer margin               */
+    --content-px: var(--page-inset);      /* match outer margin (40px)       */
+    --content-pt: var(--page-inset);      /* match toolbar inset (40px)      */    --content-pt-home: 7.5rem;              /* 120px top padding — home page   */    --content-py: 12.5rem;                /* 200px vertical padding          */
+  }
 }
 
 /* =============================================================================
@@ -444,13 +554,5 @@ button:not([data-animating]):hover .typewriter-text {
 /* App layout */
 #root {
   height: 100vh;
-  overflow: hidden;
   display: flex;
-  padding: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  #root {
-    padding: 2.5rem;
-  }
 }

@@ -19,24 +19,35 @@ interface ProjectCanvasProps {
  */
 export function ProjectCanvas({ page }: ProjectCanvasProps) {
   const blocks = page.blocks ?? []
+  const isHome = page.id === 'home'
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="relative h-full">
 
-      {/* Desktop toolbar — fixed height for consistent content positioning across pages.
-         Transparent, so no visual gap even when CanvasActions returns null. */}
-      <div className="hidden md:flex items-center justify-end px-4 min-h-13">
+      {/* Desktop toolbar — absolutely positioned top-right, floats above content */}
+      <div className="absolute top-(--page-inset) right-(--page-inset) z-10 hidden md:flex items-center">
         <CanvasActions page={page} />
       </div>
 
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-xl px-6 py-16 md:py-8">
+      {/* Scrollable content — full height, no clipping */}
+      <div className="h-full overflow-y-auto">
+        <div
+          className={`mx-auto w-full max-w-5xl px-(--content-px) pb-(--content-py-mobile) md:pb-(--content-py) ${
+            isHome ? 'pt-(--content-pt-home)' : 'pt-(--content-pt)'
+          }`}
+        >
           {blocks.map((block, i) => {
+            const isIframe = block.type === 'iframe'
             const isStats = block.type === 'stats'
             return (
-              <div key={i} className={i > 0 ? (isStats ? 'mt-4' : 'mt-10') : ''}>
-                <BlockRenderer block={block} index={i} />
+              <div key={i} className={i > 0 ? (isStats ? 'mt-(--block-gap-tight)' : 'mt-(--block-gap)') : ''}>
+                {isIframe ? (
+                  <BlockRenderer block={block} index={i} />
+                ) : (
+                  <div className="mx-auto max-w-2xl">
+                    <BlockRenderer block={block} index={i} />
+                  </div>
+                )}
               </div>
             )
           })}

@@ -11,10 +11,10 @@ export function HomeHero({ index }: HomeHeroProps) {
       <h1 className="text-5xl font-bold tracking-tight text-foreground">
         Bharat Nag
       </h1>
-      <p className="mt-3 text-xl text-muted-foreground">
+      <p className="mt-(--hero-subtitle-gap) text-xl text-muted-foreground">
         Building thoughtfully at the intersection of design and code.
       </p>
-      <div className="mt-10 h-px w-12 bg-border" />
+      <div className="mt-(--hero-divider-gap) h-px w-12 bg-border" />
     </FadeInUp>
   )
 }

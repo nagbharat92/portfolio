@@ -14,7 +14,7 @@ const SOCIAL_LINKS = [
 
 export function HomeSocial({ index }: HomeSocialProps) {
   return (
-    <FadeInUp i={index} className="flex flex-wrap gap-x-6 gap-y-2">
+    <FadeInUp i={index} className="flex flex-wrap gap-x-(--social-gap-x) gap-y-(--social-gap-y)">
       {SOCIAL_LINKS.map((link) => (
         <a
           key={link.href}
