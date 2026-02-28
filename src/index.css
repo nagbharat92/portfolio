@@ -177,6 +177,13 @@
   --duration-measured:   500ms;
   --duration-deliberate: 1000ms;
 
+  /* Page transition durations
+     page-exit:  base  (200ms) — snappy fade-out of the outgoing page
+     page-enter: slow  (300ms) — quick fade-in for the incoming page container
+                         (content blocks handle their own staggered entrance) */
+  --duration-page-exit:  var(--duration-base);
+  --duration-page-enter: var(--duration-slow);
+
   /* Easing — explicit cubic-bezier values to ensure CSS/JS parity
      ease-out:    things arriving/decelerating — most common
      ease-in:     things leaving/accelerating away

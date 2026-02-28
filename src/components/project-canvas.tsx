@@ -23,9 +23,10 @@ export function ProjectCanvas({ page }: ProjectCanvasProps) {
   return (
     <div className="flex h-full flex-col">
 
-      {/* Desktop toolbar — hidden on mobile */}
-      <div className="hidden md:flex items-center justify-end px-4 py-3">
-        <CanvasActions />
+      {/* Desktop toolbar — fixed height for consistent content positioning across pages.
+         Transparent, so no visual gap even when CanvasActions returns null. */}
+      <div className="hidden md:flex items-center justify-end px-4 min-h-13">
+        <CanvasActions page={page} />
       </div>
 
       {/* Scrollable content */}

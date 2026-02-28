@@ -310,3 +310,64 @@ The smoothness comes from three things working together:
 3. The **stagger interval growth** — the page fills in with a rhythm that slows down, not a metronome
 
 Change any one of these and the feeling shifts. This combination produces motion that reads as calm, confident, and considered — not flashy.
+
+---
+
+## Page Transition Choreography
+
+Content entrance animations are only half the story. When a user navigates between pages (via the sidebar), the full transition is a **two-phase sequential** process — the old page exits, then the new page enters. These phases never overlap.
+
+### Phase 1 — Exit (old page fades out)
+
+| Property | Value |
+|----------|-------|
+| Opacity | `1 → 0` |
+| Duration | **700ms** (`transitions.pageExit` / `--duration-page-exit`) |
+| Easing | `ease-in` — accelerates away, does not linger |
+| Scope | Entire page as one unit (no individual block exit animations) |
+
+The outgoing page fades out as a whole. Individual blocks do not animate out separately — the parent `motion.div` handles the opacity. This keeps the exit clean and fast rather than adding a reverse stagger that would double the transition time.
+
+### Phase 2 — Enter (new page fades in + content blocks stagger)
+
+| Property | Value |
+|----------|-------|
+| Container opacity | `0 → 1` over **300ms** (`transitions.pageEnter` / `--duration-page-enter`) with `ease-out` |
+| Block entrance | 200px translateY + opacity, **1.4s** per block, expo-out easing |
+| Block stagger | `--stagger-base: 100ms`, `--stagger-growth: 10ms` |
+
+The page container fades in quickly (300ms), while the content blocks inside perform their staggered entrance animation. The container fade and block animations run concurrently — the container opacity acts as an additional gate during the first 300ms, but since blocks start at `opacity: 0` independently, this overlap is invisible.
+
+### Sequencing mechanism
+
+Framer Motion's `<AnimatePresence mode="wait">` ensures the exit animation completes fully before the enter animation begins. The new `ProjectCanvas` does not mount until the old one has finished fading out. Since CSS `animate-fade-in-up` runs on mount, blocks naturally start their staggered entrance only after the exit is done.
+
+### Total transition budget
+
+| Phase | Duration |
+|-------|----------|
+| Exit | 700ms |
+| Enter (container) | 300ms |
+| Enter (last block visible) | ~300ms + stagger delay of last block |
+| **Total wall-clock time** | ~1000ms + stagger |
+
+For a 3-block page (home): ~1000ms + 210ms = ~1.2s total.
+For a 9-block page (experiment): ~1000ms + 1080ms = ~2.1s total.
+
+### Why sequential, not crossfade
+
+A crossfade (old and new pages overlapping with simultaneous opacity fades) is technically smoother and faster. But for a portfolio site, the sequential approach is aesthetically superior:
+
+- It creates a **clear narrative pause** between pages — the old content leaves, you have a brief breath, the new content arrives
+- It prevents visual noise from two pages bleeding into each other during the overlap
+- It makes the entrance animation land with full impact because the viewport is clean when blocks start arriving
+- It feels more **intentional and editorial**, like turning a page rather than dissolving between slides
+
+### Tokens (CSS and JS)
+
+| Token | CSS | JS |
+|-------|-----|----|
+| Page exit duration | `--duration-page-exit: 700ms` | `transitions.pageExit.duration: 0.70` |
+| Page exit easing | `--ease-in` | `ease.in` |
+| Page enter duration | `--duration-page-enter: 300ms` | `transitions.pageEnter.duration: 0.30` |
+| Page enter easing | `--ease-out` | `ease.out` |

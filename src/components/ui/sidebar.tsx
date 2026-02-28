@@ -201,17 +201,21 @@ const Sidebar = React.forwardRef<
       }
 
       return (
-        <div
-          data-slot="sidebar"
-          className={cn(
-            "fixed left-[2.5rem] top-[2.5rem] bottom-[2.5rem] z-10 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground rounded-xl border border-sidebar-border shadow-2xl",
-            className
-          )}
-          ref={ref}
-          {...props}
-        >
-          {children}
-        </div>
+        <>
+          {/* Spacer to reserve horizontal space in the flex layout */}
+          <div className="w-(--sidebar-width) shrink-0" />
+          <div
+            data-slot="sidebar"
+            className={cn(
+              "fixed left-[2.5rem] top-[2.5rem] bottom-[2.5rem] z-10 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground rounded-xl border border-sidebar-border shadow-2xl",
+              className
+            )}
+            ref={ref}
+            {...props}
+          >
+            {children}
+          </div>
+        </>
       )
     }
 

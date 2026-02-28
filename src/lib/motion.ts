@@ -75,6 +75,17 @@ export const transitions = {
     duration: duration.deliberate,
     ease: ease.out,
   },
+  /** Page-level exit — whole page fades out before new page enters. */
+  pageExit: {
+    duration: duration.base,
+    ease: ease.in,
+  },
+  /** Page-level enter — container opacity fades in quickly;
+   *  block-level CSS animations handle the staggered content entrance. */
+  pageEnter: {
+    duration: duration.slow,
+    ease: ease.out,
+  },
 } as const
 
 /**

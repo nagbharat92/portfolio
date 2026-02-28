@@ -6,18 +6,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useFolderTree } from "@/components/folder-tree"
-import type { IframeBlock } from "@/data/pages"
+import type { IframeBlock, PageNode } from "@/data/pages"
+
+interface CanvasActionsProps {
+  /** When provided, toolbar reads blocks from this page instead of context.
+   *  Pass this inside AnimatePresence-managed trees so the toolbar stays
+   *  stable during exit animations and does not flicker. */
+  page?: PageNode
+}
 
 /**
  * CanvasActions — icon button group for the current page.
  *
- * Rendered twice: inside ProjectCanvas (desktop) and in App.tsx mobile toolbar.
- * Responsive visibility is controlled by the parent — this component is display-agnostic.
+ * Rendered twice:
+ *   - Inside ProjectCanvas (desktop) — receives `page` prop to stay stable during exit.
+ *   - In App.tsx mobile toolbar — no prop, reads from context (outside AnimatePresence).
  */
-export function CanvasActions() {
+export function CanvasActions({ page }: CanvasActionsProps = {}) {
   const { selectedPage } = useFolderTree()
+  const resolvedPage = page ?? selectedPage
 
-  const iframeBlock = selectedPage?.blocks?.find(
+  const iframeBlock = resolvedPage?.blocks?.find(
     (b): b is IframeBlock => b.type === 'iframe'
   )
 

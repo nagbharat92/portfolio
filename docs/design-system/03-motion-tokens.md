@@ -289,6 +289,18 @@ export const transitions = {
     duration: duration.deliberate,
     ease: ease.out,
   },
+  /** Page-level exit — whole page fades out before new page enters.
+   *  700ms with ease-in for a deliberate departure. */
+  pageExit: {
+    duration: 0.70,
+    ease: ease.in,
+  },
+  /** Page-level enter — container opacity fades in quickly;
+   *  block-level CSS animations handle the staggered content entrance. */
+  pageEnter: {
+    duration: 0.30,
+    ease: ease.out,
+  },
 } as const
 ```
 
@@ -402,6 +414,8 @@ transition={transitions.expand}
 | List expanding/collapsing | `transition={transitions.expand}` | `transition={{ duration: 0.2, ease: "easeInOut" }}` |
 | Panel entering from side | `transition={transitions.enter}` | `transition={{ duration: 0.3 }}` |
 | Panel exiting | `transition={transitions.exit}` | `transition={transitions.enter}` (wrong — exit uses ease-in) |
+| Page switching exit | `exit={{ opacity: 0, transition: transitions.pageExit }}` | `transition={{ duration: 0.2 }}` on both enter/exit |
+| Page switching enter | `animate={{ opacity: 1, transition: transitions.pageEnter }}` | Same transition for both directions |
 | CSS animation | `animation: fadeIn var(--duration-base) var(--ease-out)` | `animation: fadeIn 0.2s ease-out` |
 | Changing standard speed | Update `duration.base` in `motion.ts` AND `--duration-base` in `index.css` | Update only one of the two files |
 | Adding a new animation preset | Add to `transitions` object in `motion.ts` | Hardcode values in the component |

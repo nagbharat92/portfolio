@@ -1,12 +1,16 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useFolderTree } from "@/components/folder-tree"
 import { ProjectCanvas } from "@/components/project-canvas"
-import { duration, ease } from "@/lib/motion"
+import { transitions } from "@/lib/motion"
 
 /**
  * Canvas — main content area of the portfolio.
  *
- * Handles page transitions via AnimatePresence crossfade.
+ * Handles sequential page transitions via AnimatePresence mode="wait".
+ * On page switch the old page fades out completely (700ms, ease-in),
+ * then the new page fades in (300ms, ease-out) while its content blocks
+ * perform the staggered CSS entrance animation.
+ *
  * All pages (including Home) are rendered by ProjectCanvas via the block renderer.
  */
 export function Canvas() {
@@ -14,15 +18,14 @@ export function Canvas() {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {selectedPage && (
           <motion.div
             key={selectedPage.id}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: duration.base, ease: ease.out }}
-            className="absolute inset-0"
+            animate={{ opacity: 1, transition: transitions.pageEnter }}
+            exit={{ opacity: 0, transition: transitions.pageExit }}
+            className="h-full"
           >
             <ProjectCanvas page={selectedPage} />
           </motion.div>
