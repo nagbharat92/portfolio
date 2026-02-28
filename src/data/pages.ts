@@ -32,6 +32,8 @@
  *   Add a FolderNode at the top level of sidebarData.
  */
 
+import { contentTree } from 'virtual:content-pages'
+
 // ─── Block types ──────────────────────────────────────────────────────────────
 
 /**
@@ -169,8 +171,6 @@ export const sidebarData: SidebarNode[] = [
     name: 'Home',
     blocks: [
       {
-        // Large name + tagline display text + short accent divider line.
-        // Rendered by the 'home-hero' custom component registered in PRD 05.
         type: 'custom',
         componentId: 'home-hero',
       },
@@ -181,85 +181,14 @@ export const sidebarData: SidebarNode[] = [
 This site is a living project. Everything here — the design system, the canvas, the tools — is being built from scratch and in the open. Work in progress by design.`,
       },
       {
-        // Social links row: Twitter, GitHub, LinkedIn, Email.
-        // Rendered by the 'home-social' custom component registered in PRD 05.
         type: 'custom',
         componentId: 'home-social',
       },
     ],
   },
 
-  {
-    id: 'personal-work',
-    type: 'folder',
-    name: 'Personal Work',
-    children: [
-      {
-        id: 'experiment-1',
-        type: 'page',
-        name: 'Experiment 1',
-        year: 2025,
-        featured: true,
-        blocks: [
-          {
-            type: 'iframe',
-            url: 'https://bharatnag.dev',
-          },
-          {
-            type: 'stats',
-            items: [
-              { label: 'React' },
-              { label: 'Vite' },
-              { label: 'Tailwind CSS' },
-              { label: '2025' },
-              { label: 'GitHub', href: 'https://github.com/nagbharat92' },
-            ],
-          },
-          {
-            type: 'text',
-            title: 'What I built',
-            body: `This is a sandbox for trying new ideas — small, fast experiments built to learn something specific rather than ship something polished.
-
-The site itself became the first experiment. Building a canvas-based portfolio in public, one PRD at a time, turned out to be more interesting than the projects it was meant to showcase.`,
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'image',
-            src: 'https://picsum.photos/seed/experiment1/1200/800',
-            alt: 'Placeholder — replace with a real screenshot or asset.',
-            caption: 'Replace this with a screenshot or process image.',
-          },
-          {
-            type: 'text',
-            title: 'How it came together',
-            body: `Started with a question: what if the portfolio was the project?
-
-Each piece — the design system, the canvas layout, the block-based content model — was designed first, then built. PRDs written before a single line of code. Constraints chosen deliberately.
-
-The result is a site that can grow without getting messy. Adding a new project means adding a block array. Adding a new kind of content means adding a new block type.`,
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'video',
-            embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            caption: 'Replace this with your own video embed URL.',
-          },
-          {
-            type: 'text',
-            body: `Building things in the open has taught me more than any tutorial ever could.
-
-Each experiment started with a single question — what happens if I just try it? Some went nowhere. A few turned into something worth keeping. All of them taught me something.
-
-This is that collection. Unpolished by design. The point was never the output.`,
-          },
-        ],
-      },
-    ],
-  },
+  // Content pages — generated from .md files in src/data/content/
+  ...contentTree,
 ]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
