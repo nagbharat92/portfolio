@@ -102,12 +102,21 @@ function parseContentFile(raw, filename) {
 
   const blocks = []
 
-  // 1. Iframe block from frontmatter
-  if (fm.iframe) {
-    blocks.push({ type: 'iframe', url: fm.iframe })
+  // ── Resolve name: explicit name > title > filename ──
+  const resolvedName = fm.name ?? fm.title ?? toTitleCase(filename)
+
+  // ── Resolve year: explicit year > extracted from date ──
+  const resolvedYear = fm.year ?? (fm.date ? new Date(fm.date).getFullYear() : undefined)
+
+  // ── 1. Iframe block ──
+  // Explicit `iframe` wins; otherwise derive from `links.live`
+  const iframeUrl = fm.iframe ?? fm.links?.live
+  if (iframeUrl) {
+    blocks.push({ type: 'iframe', url: iframeUrl })
   }
 
-  // 2. Stats block from frontmatter
+  // ── 2. Stats block ──
+  // Explicit `stats` wins; otherwise build from tags + date year + links
   if (fm.stats && fm.stats.length > 0) {
     blocks.push({
       type: 'stats',
@@ -117,6 +126,34 @@ function parseContentFile(raw, filename) {
         return s
       }),
     })
+  } else {
+    const statsItems = []
+
+    // Tags → label-only stats items
+    if (Array.isArray(fm.tags)) {
+      for (const tag of fm.tags) {
+        statsItems.push({ label: String(tag) })
+      }
+    }
+
+    // Year from date
+    if (fm.date) {
+      statsItems.push({ label: String(new Date(fm.date).getFullYear()) })
+    }
+
+    // Links → clickable stats items
+    if (fm.links) {
+      if (fm.links.live) {
+        statsItems.push({ label: 'View Project', href: fm.links.live })
+      }
+      if (fm.links.github) {
+        statsItems.push({ label: 'GitHub', href: fm.links.github })
+      }
+    }
+
+    if (statsItems.length > 0) {
+      blocks.push({ type: 'stats', items: statsItems })
+    }
   }
 
   // 3. Parse body into blocks
@@ -126,8 +163,8 @@ function parseContentFile(raw, filename) {
     page: {
       id: fm.id ?? filename,
       type: 'page',
-      name: fm.name ?? toTitleCase(filename),
-      ...(fm.year != null ? { year: fm.year } : {}),
+      name: resolvedName,
+      ...(resolvedYear != null ? { year: resolvedYear } : {}),
       ...(fm.featured != null ? { featured: fm.featured } : {}),
       blocks,
     },
