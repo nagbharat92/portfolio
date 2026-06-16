@@ -4,7 +4,7 @@
 
 ## 1. What We're Building
 
-A personal portfolio site at bharatnag.dev with a markdown-driven content pipeline. Project pages are authored as `.md` files, parsed at build time by a custom Vite plugin into a typed block data model, and rendered by a block-based canvas system. The next piece is a VS Code skill (separate repo) that automates content creation by interviewing the author and generating these `.md` files.
+A personal portfolio site with a markdown-driven content pipeline. Project pages are authored as `.md` files, parsed at build time by a custom Vite plugin into a typed block data model, and rendered by a block-based canvas system. The next piece is a VS Code skill (separate repo) that automates content creation by interviewing the author and generating these `.md` files.
 
 ---
 
@@ -12,7 +12,7 @@ A personal portfolio site at bharatnag.dev with a markdown-driven content pipeli
 
 ### Portfolio site (working, deployed)
 
-- **Repo:** Private GitHub repo, deployed via GitHub Pages to bharatnag.dev
+- **Repo:** GitHub repo (`nagbharat92/portfolio`), deployed via GitHub Pages — project site at `/portfolio/`
 - **Local path:** The user's portfolio project folder (opened in Cowork)
 - **Stack:** React 19 + TypeScript + Vite, Tailwind CSS v4, shadcn/ui, Framer Motion + CSS animations, hash-based routing
 - **Vite config:** `vite.config.js` — includes `contentPlugin()`, `react()`, `tailwindcss()`, base path `/portfolio/` in production

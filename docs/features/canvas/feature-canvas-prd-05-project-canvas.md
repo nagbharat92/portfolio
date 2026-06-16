@@ -723,11 +723,11 @@ After running in VS Code, test the following at `localhost:5173`:
 3. Social links are clickable and open correctly.
 
 **Experiment 1:**
-4. Select Experiment 1. Canvas crossfades in. The iframe card appears at 4:3 ratio showing `bharatnag.dev`.
+4. Select Experiment 1. Canvas crossfades in. The iframe card appears at 4:3 ratio showing `example.com`.
 5. Below the iframe: the stats strip with React · Vite · Tailwind CSS · 2025 · GitHub (link).
 6. Then text sections, a divider, a placeholder image, more text, a divider, a YouTube video embed, and a final text block.
 7. The content scrolls smoothly — toolbar stays fixed at top.
-8. The "Open in new tab" icon button appears in the toolbar. Clicking it opens `https://bharatnag.dev` in a new tab.
+8. The "Open in new tab" icon button appears in the toolbar. Clicking it opens `https://example.com` in a new tab.
 
 **Toolbar:**
 9. On desktop (≥ md breakpoint): toolbar row visible at top of canvas, right-aligned.

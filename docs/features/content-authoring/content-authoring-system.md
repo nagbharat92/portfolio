@@ -1,13 +1,13 @@
 # Content Authoring System — Product Document
 
 > Last updated: February 2026.
-> This document is the full context for anyone (human or AI) working on the content authoring pipeline for bharatnag.dev.
+> This document is the full context for anyone (human or AI) working on the content authoring pipeline for the portfolio site.
 
 ---
 
 ## The Problem
 
-The portfolio site at bharatnag.dev is a block-based canvas system. Every page in the sidebar renders as an ordered sequence of typed content blocks — iframe previews, metadata strips, long-form text, images, videos, and dividers. The rendering pipeline is solid. The data model is extensible. But for the first five PRDs, all content lived inside a single TypeScript file (`src/data/pages.ts`). Adding a new project meant editing code. That doesn't scale, and it blocks the eventual goal: AI-assisted content authoring.
+The portfolio site is a block-based canvas system. Every page in the sidebar renders as an ordered sequence of typed content blocks — iframe previews, metadata strips, long-form text, images, videos, and dividers. The rendering pipeline is solid. The data model is extensible. But for the first five PRDs, all content lived inside a single TypeScript file (`src/data/pages.ts`). Adding a new project meant editing code. That doesn't scale, and it blocks the eventual goal: AI-assisted content authoring.
 
 This system solves that by moving project content into standalone Markdown files that get parsed into the block model at build time. The rendering layer never changes. The authoring experience becomes: write a `.md` file, save it, see it on the site.
 
@@ -100,7 +100,7 @@ This matches the established visual pattern: hero preview first, metadata strip 
 name: "Experiment 1"
 year: 2025
 featured: true
-iframe: https://bharatnag.dev
+iframe: https://example.com
 stats:
   - React
   - Vite
@@ -209,8 +209,8 @@ Every block is wrapped in `FadeInUp` for staggered entrance animation. The anima
 | Animation | Framer Motion (page crossfade) + CSS (block entrance) |
 | Markdown rendering | react-markdown + remark-gfm |
 | Routing | Hash-based (`#/path`) — GitHub Pages compatible |
-| Deployment | GitHub Pages via `gh-pages` branch + GitHub Actions |
-| Domain | bharatnag.dev |
+| Deployment | GitHub Pages via GitHub Actions (`actions/deploy-pages`) |
+| Hosting | GitHub Pages project site — base path `/portfolio/` |
 
 The site is structured as a file-system metaphor: collapsible sidebar on the left (folders and pages), block-based canvas on the right. Content is data-driven — adding a page or a block type never requires changes to the rendering code.
 

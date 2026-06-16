@@ -81,7 +81,7 @@ id: portfolio-site              # Optional. Defaults to filename (without .md).
 year: 2025                      # Optional. Metadata for future filtering/sorting.
 featured: true                  # Optional. Reserved for future use.
 order: 1                        # Optional. Sort order within folder. Default: alphabetical by name.
-iframe: https://bharatnag.dev   # Optional. Live preview URL → becomes first IframeBlock.
+iframe: https://example.com   # Optional. Live preview URL → becomes first IframeBlock.
 stats:                          # Optional. Metadata strip → becomes StatsBlock after iframe.
   - React
   - Vite
@@ -133,7 +133,7 @@ This matches the existing convention established by Experiment 1: hero preview f
 name: "Experiment 1"
 year: 2025
 featured: true
-iframe: https://bharatnag.dev
+iframe: https://example.com
 stats:
   - React
   - Vite
@@ -587,7 +587,7 @@ After running in VS Code, test the following:
 
 **Content parity:**
 4. Navigate to Experiment 1 in the sidebar. The page should render identically to before — same blocks in the same order: iframe → stats → text ("What I built") → divider → image → text ("How it came together") → divider → video → text.
-5. Confirm the iframe shows `bharatnag.dev`.
+5. Confirm the iframe shows `example.com`.
 6. Confirm the stats strip shows: React · Vite · Tailwind CSS · 2025 · GitHub (link).
 7. Confirm the YouTube video embed renders.
 8. Confirm all FadeInUp animations still work (blocks stagger in).

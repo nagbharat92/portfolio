@@ -17,7 +17,6 @@ import {
   type FolderNode,
   sidebarData,
   findPage,
-  collectFolderIds,
   findAncestorFolderIds,
 } from "@/data/pages"
 

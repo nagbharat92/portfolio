@@ -7,7 +7,7 @@ import { transitions } from "@/lib/motion"
  * Canvas — main content area of the portfolio.
  *
  * Handles sequential page transitions via AnimatePresence mode="wait".
- * On page switch the old page fades out completely (700ms, ease-in),
+ * On page switch the old page fades out completely (200ms, ease-in),
  * then the new page fades in (300ms, ease-out) while its content blocks
  * perform the staggered CSS entrance animation.
  *

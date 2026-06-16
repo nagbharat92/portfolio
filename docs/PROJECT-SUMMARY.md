@@ -1,13 +1,13 @@
 # Portfolio — Project Summary
 
-> Last updated: February 2026.
+> Last updated: June 2026.
 > This document is the connective tissue of the project — what exists, what's next, and what docs still need to be written.
 
 ---
 
 ## What This Is
 
-A personal portfolio site for Bharat Nag, deployed at [bharatnag.dev](https://bharatnag.dev) via GitHub Pages.
+A personal portfolio site for Bharat Nag, deployed via GitHub Pages at [nagbharat92.github.io/portfolio](https://nagbharat92.github.io/portfolio/).
 
 The site is intentionally structured like a file system: a collapsible sidebar with folders and pages on the left, and a content canvas on the right. Pages are composed of **blocks** — a small set of typed content units (iframe, stats, text, image, video, divider, custom). The system is designed to add new content without touching rendering code.
 
@@ -24,8 +24,9 @@ The site is intentionally structured like a file system: a collapsible sidebar w
 | Animation | Framer Motion (page transitions) + CSS (content entrance) |
 | Markdown | react-markdown + remark-gfm |
 | Routing | Hash-based (`#/path`) — GitHub Pages compatible |
-| Deployment | GitHub Pages via `gh-pages` branch + GitHub Actions |
-| Domain | bharatnag.dev |
+| Content | Markdown files → Vite content plugin → typed blocks |
+| Deployment | GitHub Pages via GitHub Actions (`actions/deploy-pages`) |
+| Hosting | GitHub Pages project site — base path `/portfolio/` |
 
 ---
 
@@ -52,7 +53,7 @@ The site is intentionally structured like a file system: a collapsible sidebar w
 - Experiment 1 has 8 blocks demonstrating every block type
 - Helpers unchanged: `findPage`, `collectFolderIds`, `findAncestorFolderIds`
 
-### PRD 05 — ProjectCanvas + Block Renderer *(written, pending agent execution)*
+### PRD 05 — ProjectCanvas + Block Renderer
 - `ProjectCanvas` — main canvas component, desktop toolbar header + scrollable block column (max-w-xl, px-6)
 - `CanvasActions` — icon button group (ExternalLink to iframe URL), rendered in desktop canvas + mobile toolbar
 - `BlockRenderer` — exhaustive switch dispatcher, TypeScript-safe
@@ -77,7 +78,7 @@ Stagger formula: `delay(i) = i × 100ms + i×(i-1)/2 × 10ms` (decelerating — 
 - Typography scale defined as tokens
 - Motion tokens: `--duration-base`, `--ease-out`, etc.
 - Component API shape conventions
-- Light/dark mode via `[data-theme]` attribute on `:root`
+- Light/dark mode via the `.dark` class on `<html>` — synced to system preference, soft cross-fade via the View Transitions API
 
 ---
 
@@ -89,7 +90,8 @@ src/
 ├── main.tsx
 ├── index.css                        — All design tokens + keyframes + animation classes
 ├── data/
-│   └── pages.ts                     — Block types, PageNode tree, all page data
+│   ├── pages.ts                     — Block types, PageNode tree, Home page data
+│   └── content/                     — Markdown source files → content plugin
 ├── lib/
 │   ├── motion.ts                    — Framer Motion duration/ease constants
 │   └── utils.ts                     — cn() utility
@@ -101,8 +103,6 @@ src/
     ├── folder-tree.tsx              — FolderTreeProvider + useFolderTree + tree rendering
     ├── project-canvas.tsx           — Block list renderer + desktop toolbar
     ├── canvas-toolbar.tsx           — CanvasActions (ExternalLink icon button)
-    ├── home-canvas.tsx              — TO BE DELETED by PRD 05
-    ├── project-placeholder.tsx      — TO BE DELETED by PRD 05
     ├── blocks/
     │   ├── block-renderer.tsx       — Dispatches Block → renderer component
     │   ├── iframe-block.tsx
@@ -133,12 +133,10 @@ src/
 Listed roughly in priority order. Each becomes a PRD before any agent runs it.
 
 ### Immediate
-- **Run PRD 05** — ProjectCanvas + block renderers. All 15 checklist items verified.
 - **Typography** — Inter is a placeholder. Choose and load the actual typeface (system font stack vs. Google Fonts vs. variable font). Small PRD.
 
 ### Near-term
-- **Deployment setup** — Confirm GitHub Actions workflow is correct, Vite `base` config points at `bharatnag.dev`, custom domain DNS is wired. Test a real production build.
-- **Real content** — Home hero copy, bio, and social links are real. Experiment 1 is placeholder content. Add at least 1–2 real project pages with actual blocks.
+- **Real content** — Home and the first personal-work post are real. Add more project pages as `.md` files in `src/data/content/`.
 - **Empty state** — What shows in the canvas when no page is selected (folder clicked, not a leaf page). Currently undefined.
 
 ### Polish pass
@@ -150,7 +148,6 @@ Listed roughly in priority order. Each becomes a PRD before any agent runs it.
 
 ### Future
 - **New custom block types** — each is a one-file addition to `src/components/blocks/custom/` + one line in REGISTRY
-- **Content authoring** — editing `pages.ts` directly is functional but fragile. Options: structured JSON files per page, markdown frontmatter, or a lightweight local CMS
 - **Search / filter** — find pages across the sidebar tree without navigating manually
 - **Devbox / visual editor** — longer-term, a way to compose blocks visually
 
@@ -173,6 +170,9 @@ Listed roughly in priority order. Each becomes a PRD before any agent runs it.
 | `docs/features/canvas/feature-canvas-prd-03-state-persistence.md` | localStorage folder state + URL preservation |
 | `docs/features/canvas/feature-canvas-prd-04-data-model-refactor.md` | Block types, pages.ts refactor |
 | `docs/features/canvas/feature-canvas-prd-05-project-canvas.md` | Full block renderer system |
+| `docs/features/canvas/feature-canvas-prd-06-markdown-content.md` | Markdown content pipeline (Vite content plugin) |
+| `docs/features/content-authoring/content-authoring-system.md` | Content authoring system — product doc |
+| `docs/portfolio-content-system-handoff.md` | Content system + VS Code authoring skill handoff |
 | `docs/motion/content-transition-prd.md` | Animation system — CSS FadeInUp + Framer Motion crossfade |
 
 ### Missing — Needs to Be Written
@@ -190,10 +190,10 @@ This doc should cover:
 
 An agent reading this doc before making any UI/UX decision would make far better choices by default.
 
-#### `docs/features/canvas/feature-canvas-prd-06-*.md`
-**Status:** Not yet defined. The next PRD after testing PRD 05.
+#### Next PRD (07)
+**Status:** Not yet defined. PRD 06 (markdown content pipeline) is complete.
 
-Likely candidates: deployment verification, typography, or the empty state.
+Likely candidates: typography, the empty state, or block-renderer error boundaries.
 
 #### `docs/content/content-guide.md`
 **Status:** Not discussed yet, but needed once real content is being authored.

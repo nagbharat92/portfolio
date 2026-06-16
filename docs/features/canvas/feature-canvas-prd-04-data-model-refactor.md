@@ -284,7 +284,7 @@ This site is a living project. Everything here — the design system, the canvas
         blocks: [
           {
             type: 'iframe',
-            url: 'https://bharatnag.dev',
+            url: 'https://example.com',
           },
           {
             type: 'stats',

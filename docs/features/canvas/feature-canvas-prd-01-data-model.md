@@ -198,7 +198,7 @@ export const sidebarData: SidebarNode[] = [
         id: 'experiments',
         type: 'page',
         name: 'Experiments',
-        url: 'https://bharatnag.dev', // placeholder — replace with real URL
+        url: 'https://example.com', // placeholder — replace with real URL
         description: 'A sandbox for trying new ideas. Small, fast experiments built to learn something specific rather than ship something polished.',
         techStack: ['React', 'Vite', 'Tailwind CSS'],
         year: 2025,

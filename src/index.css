@@ -301,7 +301,9 @@
   :root {
     --page-inset: var(--space-10);        /* 40px outer margin               */
     --content-px: var(--page-inset);      /* match outer margin (40px)       */
-    --content-pt: var(--page-inset);      /* match toolbar inset (40px)      */    --content-pt-home: 7.5rem;              /* 120px top padding — home page   */    --content-py: 12.5rem;                /* 200px vertical padding          */
+    --content-pt: var(--page-inset);      /* match toolbar inset (40px)      */
+    --content-pt-home: 7.5rem;            /* 120px top padding — home page    */
+    --content-py: 12.5rem;                /* 200px vertical padding          */
   }
 }
 
