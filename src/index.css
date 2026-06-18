@@ -411,8 +411,8 @@
   /* Isometric home-grid — the decorative blueprint field behind the title.
      Authored as literal colors (not primitive refs) so the canvas renderer can
      read them straight from getComputedStyle. Subtle by design. */
-  --iso-line:              hsl(0 0% 0% / 0.08); /* thin rhombus outline        */
-  --iso-fill:              hsl(0 0% 0% / 0.10); /* hovered / tapped tile fill   */
+  --iso-line:              hsl(0 0% 0% / 0.05); /* thin rhombus outline        */
+  --iso-fill:              hsl(0 0% 0% / 0.07); /* hovered / tapped tile fill   */
 
   --radius: 1.5rem;
 
@@ -466,8 +466,8 @@
   --ring:                  var(--gray-500);
 
   /* Isometric home-grid — light ink on the dark field (see light theme note). */
-  --iso-line:              hsl(0 0% 100% / 0.08);
-  --iso-fill:              hsl(0 0% 100% / 0.12);
+  --iso-line:              hsl(0 0% 100% / 0.05);
+  --iso-fill:              hsl(0 0% 100% / 0.09);
 
   /* Sidebar */
   --sidebar-background:           var(--slate-900);

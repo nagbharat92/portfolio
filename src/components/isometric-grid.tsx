@@ -31,6 +31,14 @@ const fadeEase = (t: number) => t * t * t
 const FADE_INNER = 0.5 // within this radius the grid is fully visible
 const FADE_OUTER = 1.0 // beyond this radius the grid is fully erased
 
+/** Idle "breathing" pulse: once the pointer rests on a tile for this long (ms),
+ *  its fill starts to pulse slowly. Any pointer movement resets it. */
+const BREATH_DELAY_MS = 2000
+/** Duration of one full breath (ms) — slow and calm. */
+const BREATH_PERIOD_MS = 2000
+/** Dimmest point of the breath, as a fraction of the resting fill. */
+const BREATH_MIN = 0.4
+
 interface Tween {
   /** Alpha at the moment the tween started. */
   from: number
@@ -53,7 +61,8 @@ interface IsometricGridProps {
  * outlines that fills the entire viewport (the tile count is derived from the
  * viewport size on every resize). The tile under the pointer fills instantly
  * with a soft wash and fades back out slowly when the pointer leaves, so a
- * moving cursor leaves a snake-like trail. On touch devices a tap pulses the
+ * moving cursor leaves a snake-like trail. Rest the pointer on a tile and after
+ * a short pause its fill pulses slowly. On touch devices a tap pulses the
  * tapped tile. The field dissolves
  * toward the edges via a radial mask, so it reads as a world larger than the
  * window rather than a boxed-in graphic.
@@ -91,6 +100,11 @@ export function IsometricGrid({ className }: IsometricGridProps) {
     const pulses = new Set<string>()
     /** Tile currently under the pointer (hover), or null. */
     let hovered: string | null = null
+    /** Resting tile whose fill is slowly pulsing (after BREATH_DELAY_MS idle). */
+    let breathKey: string | null = null
+    let breathStart = 0
+    /** Timer that starts the breath once the pointer goes still. */
+    let idleTimer: number | undefined
     let rafId = 0
     let running = false
 
@@ -127,9 +141,26 @@ export function IsometricGrid({ className }: IsometricGridProps) {
     function currentAlpha(key: string, now: number): number {
       const tw = tweens.get(key)
       if (!tw) return 0
-      if (reduceMotion || tw.duration <= 0) return tw.to
-      const t = Math.min(1, (now - tw.start) / tw.duration)
-      return tw.from + (tw.to - tw.from) * fadeEase(t)
+      let a: number
+      if (reduceMotion || tw.duration <= 0) {
+        a = tw.to
+      } else {
+        const t = Math.min(1, (now - tw.start) / tw.duration)
+        a = tw.from + (tw.to - tw.from) * fadeEase(t)
+      }
+      // A resting tile breathes — its fill slowly pulses up and down.
+      if (key === breathKey) a *= breathFactor(now)
+      return a
+    }
+
+    /**
+     * Slow breathing multiplier for a resting tile's fill. Starts at 1 (no jump
+     * from the resting fill), dips to BREATH_MIN at the half-breath, and returns.
+     */
+    function breathFactor(now: number): number {
+      const phase = (now - breathStart) / BREATH_PERIOD_MS
+      const wave = 0.5 + 0.5 * Math.cos(phase * 2 * Math.PI) // 1 → BREATH_MIN → 1
+      return BREATH_MIN + (1 - BREATH_MIN) * wave
     }
 
     function startTween(key: string, to: number, now: number) {
@@ -148,10 +179,38 @@ export function IsometricGrid({ className }: IsometricGridProps) {
 
     function setHovered(key: string | null, now: number) {
       if (key === hovered) return
-      if (hovered) startTween(hovered, 0, now) // old tile fades out
+      if (hovered) startTween(hovered, 0, now) // old tile fades out (keeps breath value)
       if (key) startTween(key, 1, now) // new tile fills in
       hovered = key
+      breathKey = null // a new tile resets any in-progress breath
       wake()
+    }
+
+    /** Arm the idle countdown that starts a resting tile breathing. */
+    function armBreath() {
+      if (idleTimer !== undefined) clearTimeout(idleTimer)
+      idleTimer = window.setTimeout(() => {
+        idleTimer = undefined
+        if (hovered && !reduceMotion) {
+          breathKey = hovered
+          breathStart = performance.now()
+          wake()
+        }
+      }, BREATH_DELAY_MS)
+    }
+
+    function stopBreath() {
+      if (breathKey !== null) {
+        breathKey = null
+        wake() // redraw without the breath modulation
+      }
+    }
+
+    function clearIdleTimer() {
+      if (idleTimer !== undefined) {
+        clearTimeout(idleTimer)
+        idleTimer = undefined
+      }
     }
 
     function tap(key: string, now: number) {
@@ -177,6 +236,10 @@ export function IsometricGrid({ className }: IsometricGridProps) {
     function onPointerMove(e: PointerEvent) {
       if (e.pointerType === "touch") return // touch uses tap, not hover
       setHovered(tileAt(e), performance.now())
+      // Any movement means "not static": cancel an active breath and restart the
+      // idle countdown so the pulse only begins once the pointer rests.
+      stopBreath()
+      armBreath()
     }
 
     function onPointerDown(e: PointerEvent) {
@@ -187,6 +250,7 @@ export function IsometricGrid({ className }: IsometricGridProps) {
 
     function onPointerLeave() {
       setHovered(null, performance.now())
+      clearIdleTimer()
     }
 
     // ── Render ──────────────────────────────────────────────────────────────
@@ -268,7 +332,8 @@ export function IsometricGrid({ className }: IsometricGridProps) {
       ctx.fillRect(-0.5, -0.5, 1, 1)
       ctx.restore()
 
-      return active
+      // Keep the loop alive while a tile is breathing (it animates every frame).
+      return active || breathKey !== null
     }
 
     // ── RAF driver (render-on-demand) ────────────────────────────────────────
@@ -311,6 +376,7 @@ export function IsometricGrid({ className }: IsometricGridProps) {
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId)
+      clearIdleTimer()
       window.removeEventListener("pointermove", onPointerMove)
       window.removeEventListener("pointerdown", onPointerDown)
       window.removeEventListener("blur", onPointerLeave)
