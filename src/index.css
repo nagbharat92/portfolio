@@ -352,6 +352,11 @@
    ============================================================================= */
 
 :root {
+  /* Active UI color scheme. Tells the browser (incl. Dia/Safari) the page is
+     light/dark so chrome, scrollbars, and the theme-color tint render correctly.
+     Kept in sync with the .dark class below. */
+  color-scheme: light;
+
   /* Page background — the outermost surface behind all content */
   --background:            var(--gray-200);
   /* Default text and icon color — for content rendered on --background */
@@ -425,6 +430,7 @@
    ============================================================================= */
 
 .dark {
+  color-scheme: dark;
   --background:            var(--gray-950);
   --foreground:            var(--gray-50);
 
