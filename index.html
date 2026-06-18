@@ -4,12 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Personal Website</title>
+    <!-- Browser UI / toolbar tint (Dia, Safari, Chrome). Kept in sync with the
+         page background (--background): #f2f2f2 light, #0a0a0a dark. -->
+    <meta name="theme-color" content="#0a0a0a" />
     <script>
-      // Sync .dark class with system preference before first paint
+      // Sync .dark class + theme-color with system preference before first paint
       (function () {
         var mq = window.matchMedia('(prefers-color-scheme: dark)');
         function apply(e) {
-          document.documentElement.classList.toggle('dark', e.matches);
+          var isDark = e.matches;
+          document.documentElement.classList.toggle('dark', isDark);
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', isDark ? '#0a0a0a' : '#f2f2f2');
         }
         apply(mq);
         mq.addEventListener('change', apply);
