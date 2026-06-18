@@ -101,8 +101,7 @@ src/
     ├── canvas.tsx                   — AnimatePresence crossfade → ProjectCanvas
     ├── app-sidebar.tsx              — Sidebar shell with FolderTree
     ├── folder-tree.tsx              — FolderTreeProvider + useFolderTree + tree rendering
-    ├── project-canvas.tsx           — Block list renderer + desktop toolbar
-    ├── canvas-toolbar.tsx           — CanvasActions (ExternalLink icon button)
+    ├── project-canvas.tsx           — Block list renderer (scrollable content column)
     ├── blocks/
     │   ├── block-renderer.tsx       — Dispatches Block → renderer component
     │   ├── iframe-block.tsx
@@ -122,7 +121,6 @@ src/
         ├── badge.tsx                — shadcn
         ├── card.tsx                 — shadcn
         ├── fade-in-up.tsx           — project component (CSS animation wrapper)
-        ├── icon-button.tsx
         └── ...
 ```
 

@@ -3,7 +3,6 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { FolderTreeProvider } from '@/components/folder-tree'
 import { Canvas } from '@/components/canvas'
-import { CanvasActions } from '@/components/canvas-toolbar'
 import {
   Tooltip,
   TooltipContent,
@@ -31,9 +30,8 @@ function App() {
       <AppSidebar setDark={setDark} />
 
       <div className="relative flex flex-1 min-h-0">
-        {/* Mobile toolbar — absolutely positioned, visible only below md */}
-        <div className="absolute top-(--page-inset) left-(--page-inset) right-(--page-inset) z-10 flex items-center justify-between md:hidden">
-          {/* Left actions */}
+        {/* Mobile sidebar trigger — absolutely positioned, visible only below md */}
+        <div className="absolute top-(--page-inset) left-(--page-inset) z-10 flex items-center md:hidden">
           <Tooltip>
             <TooltipTrigger asChild>
               <SidebarTrigger variant="filled" />
@@ -42,9 +40,6 @@ function App() {
               <p>Explore</p>
             </TooltipContent>
           </Tooltip>
-
-          {/* Right actions */}
-          <CanvasActions />
         </div>
 
         {/* Canvas — full bleed, scrolls independently */}

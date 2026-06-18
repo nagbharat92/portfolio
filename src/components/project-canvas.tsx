@@ -1,4 +1,3 @@
-import { CanvasActions } from "@/components/canvas-toolbar"
 import { BlockRenderer } from "@/components/blocks/block-renderer"
 import type { PageNode } from "@/data/pages"
 
@@ -10,8 +9,7 @@ interface ProjectCanvasProps {
  * ProjectCanvas — renders a page's block array inside a scrollable content column.
  *
  * Layout:
- *   - Desktop: sticky toolbar row at top (hidden on mobile), then scrollable blocks
- *   - Mobile: no toolbar here — it lives in App.tsx's mobile top bar
+ *   - A single scrollable content column; blocks are centered with a max width.
  *
  * Block spacing:
  *   - Default gap between blocks: mt-10
@@ -23,11 +21,6 @@ export function ProjectCanvas({ page }: ProjectCanvasProps) {
 
   return (
     <div className="relative h-full">
-
-      {/* Desktop toolbar — absolutely positioned top-right, floats above content */}
-      <div className="absolute top-(--page-inset) right-(--page-inset) z-10 hidden md:flex items-center">
-        <CanvasActions page={page} />
-      </div>
 
       {/* Scrollable content — full height, no clipping */}
       <div className="h-full overflow-y-auto">
