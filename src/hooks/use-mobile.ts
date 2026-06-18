@@ -1,6 +1,8 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+// Viewport width (px) below which the sidebar collapses to an off-canvas sheet.
+// Matches Tailwind's `lg` breakpoint and the desktop media query in index.css.
+const MOBILE_BREAKPOINT = 1024
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)

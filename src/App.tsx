@@ -31,7 +31,7 @@ function App() {
 
       <div className="relative flex flex-1 min-h-0">
         {/* Mobile sidebar trigger — absolutely positioned, visible only below md */}
-        <div className="absolute top-(--page-inset) left-(--page-inset) z-10 flex items-center md:hidden">
+        <div className="absolute top-(--page-inset) left-(--page-inset) z-10 flex items-center lg:hidden">
           <Tooltip>
             <TooltipTrigger asChild>
               <SidebarTrigger variant="filled" />

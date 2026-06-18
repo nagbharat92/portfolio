@@ -240,6 +240,10 @@
   --page-inset: var(--space-6);         /* Mobile: 24px outer margin         */
   --layout-gap: var(--page-inset);      /* Sidebar↔content gap = page inset  */
 
+  /* Sidebar width — fluid between a min and max on desktop; collapses to an
+     off-canvas sheet (SIDEBAR_WIDTH_MOBILE in sidebar.tsx) below lg (1024px). */
+  --sidebar-width: clamp(17.5rem, 22vw, 22.5rem);  /* 280px → 360px */
+
   /* ── Content column ───────────────────────────────────────────────────────
      Horizontal and vertical padding of the scrollable content area. */
   --content-px:        var(--space-6);  /* 24px horizontal padding           */
@@ -296,8 +300,8 @@
   --tree-indent-step: var(--space-4);   /* 16px additional indent per level  */
 }
 
-/* Desktop overrides — layout tokens scale up at ≥768px */
-@media (min-width: 768px) {
+/* Desktop overrides — layout tokens scale up at ≥1024px (lg) */
+@media (min-width: 1024px) {
   :root {
     --page-inset: var(--space-10);        /* 40px outer margin               */
     --content-px: var(--page-inset);      /* match outer margin (40px)       */
