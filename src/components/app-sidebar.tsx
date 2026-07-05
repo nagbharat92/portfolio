@@ -8,6 +8,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { FolderTree, useFolderTree } from "@/components/folder-tree"
+import { RoughBox } from "@/components/ui/rough-ink"
 
 const EMAIL = "nagbharat92@gmail.com"
 const linkClasses = "font-bold text-sidebar-foreground underline-offset-4 hover:underline inline-flex items-baseline gap-1"
@@ -132,6 +133,10 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
           {" "}to match your mood.
         </p>
       </SidebarFooter>
+
+      {/* Hand-drawn sketchy outline framing the whole sidebar (replaces the
+          old CSS border + shadow). Sits as a non-interactive overlay. */}
+      <RoughBox seed={7} radius={9} className="text-sidebar-foreground/70" />
     </Sidebar>
   )
 }

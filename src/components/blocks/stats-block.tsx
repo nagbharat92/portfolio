@@ -16,12 +16,12 @@ export function StatsBlockRenderer({ block, index }: { block: StatsBlock; index:
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-150 underline underline-offset-4"
+                className="text-(length:--content-body-size) text-muted-foreground hover:text-foreground transition-colors duration-150 underline underline-offset-4"
               >
                 {item.label}
               </a>
             ) : (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-(length:--content-body-size) text-muted-foreground">
                 {item.label}
               </span>
             )}

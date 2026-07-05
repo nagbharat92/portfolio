@@ -205,7 +205,7 @@ const Sidebar = React.forwardRef<
           <div
             data-slot="sidebar"
             className={cn(
-              "fixed left-(--page-inset) top-(--page-inset) bottom-(--page-inset) z-10 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground rounded-xl border border-sidebar-border shadow-2xl",
+              "fixed left-(--page-inset) top-(--page-inset) bottom-(--page-inset) z-10 flex w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground rounded-xl",
               className
             )}
             ref={ref}
@@ -282,7 +282,7 @@ const Sidebar = React.forwardRef<
             className={cn(
               "flex h-full w-full flex-col bg-sidebar",
               variant === "floating"
-                ? "rounded-xl border border-sidebar-border shadow-2xl"
+                ? "rounded-xl"
                 : ""
             )}
           >
@@ -362,7 +362,7 @@ const SidebarInset = React.forwardRef<
       data-slot="sidebar-inset"
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl",
         className
       )}
       {...props}
@@ -431,7 +431,7 @@ const SidebarSeparator = React.forwardRef<
       ref={ref}
       data-sidebar="separator"
       data-slot="sidebar-separator"
-      className={cn("mx-(--sidebar-separator-mx) w-auto bg-sidebar-border", className)}
+      className={cn("mx-(--sidebar-separator-mx) w-auto text-sidebar-foreground/60", className)}
       {...props}
     />
   )

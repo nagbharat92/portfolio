@@ -1,13 +1,14 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import { RoughLine } from "@/components/ui/rough-ink"
 
 /**
  * Orientation variants for the Separator component.
- * Separator renders a thin line to visually divide content sections.
+ * Separator renders a hand-drawn (sketchy) line to visually divide content sections.
  *
- * @variant horizontal — Full-width line (h-[1px] w-full). Use between vertically stacked sections.
- * @variant vertical   — Full-height line (h-full w-[1px]). Use between side-by-side columns.
+ * @variant horizontal — Full-width rough line. Use between vertically stacked sections.
+ * @variant vertical   — Full-height rough line. Use between side-by-side columns.
  *                       Requires the parent to have a defined height for the line to be visible.
  *
  * The `decorative` prop controls accessibility:
@@ -15,12 +16,12 @@ import { cn } from "@/lib/utils"
  *   decorative=false           — Meaningful division. Announced by screen readers as a separator.
  */
 const separatorVariants = cva(
-  "shrink-0 bg-border",
+  "shrink-0 text-muted-foreground",
   {
     variants: {
       orientation: {
-        horizontal: "h-[1px] w-full",
-        vertical:   "h-full w-[1px]",
+        horizontal: "w-full",
+        vertical:   "h-full",
       },
     },
     defaultVariants: {
@@ -33,11 +34,13 @@ interface SeparatorProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof separatorVariants> {
   decorative?: boolean
+  /** Fixed roughjs seed so the sketchy line never re-wobbles. */
+  seed?: number
 }
 
 const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
   (
-    { className, orientation = "horizontal", decorative = true, ...props },
+    { className, orientation = "horizontal", decorative = true, seed, ...props },
     ref
   ) => (
     <div
@@ -46,7 +49,9 @@ const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
       aria-orientation={decorative ? undefined : (orientation ?? undefined)}
       className={cn(separatorVariants({ orientation }), className)}
       {...props}
-    />
+    >
+      <RoughLine orientation={orientation ?? "horizontal"} seed={seed} />
+    </div>
   )
 )
 Separator.displayName = "Separator"

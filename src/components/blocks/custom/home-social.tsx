@@ -21,7 +21,7 @@ export function HomeSocial({ index }: HomeSocialProps) {
           href={link.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm font-medium underline-offset-4 hover:underline text-muted-foreground hover:text-foreground transition-colors duration-150"
+          className="text-xl font-medium underline-offset-4 hover:underline text-muted-foreground hover:text-foreground transition-colors duration-150"
         >
           {link.label}
         </a>

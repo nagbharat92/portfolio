@@ -1,19 +1,23 @@
 import { FadeInUp } from "@/components/ui/fade-in-up"
+import { RoughBox } from "@/components/ui/rough-ink"
 import type { IframeBlock } from "@/data/pages"
 
 export function IframeBlockRenderer({ block, index }: { block: IframeBlock; index: number }) {
   return (
     <FadeInUp i={index}>
-      <div className="w-full overflow-hidden rounded-xl border border-border bg-card aspect-[4/3]">
-        <iframe
-          src={block.url}
-          className="h-full w-full"
-          loading="lazy"
-          title="Project preview"
-        />
+      <div className="relative aspect-[4/3] w-full">
+        <div className="h-full w-full overflow-hidden rounded-xl bg-card">
+          <iframe
+            src={block.url}
+            className="h-full w-full"
+            loading="lazy"
+            title="Project preview"
+          />
+        </div>
+        <RoughBox seed={53} radius={9} className="text-muted-foreground" />
       </div>
       {block.caption && (
-        <p className="mt-(--caption-gap) text-center text-sm text-muted-foreground">
+        <p className="mt-(--caption-gap) text-center text-(length:--content-body-size) text-muted-foreground">
           {block.caption}
         </p>
       )}

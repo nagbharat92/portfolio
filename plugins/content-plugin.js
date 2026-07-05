@@ -156,7 +156,15 @@ function parseContentFile(raw, filename) {
     }
   }
 
-  // 3. Parse body into blocks
+  // ── 3. Custom component block ──
+  // Escape hatch: `custom: <componentId>` renders a registered React component
+  // (see the REGISTRY in src/components/blocks/custom-block.tsx). Handy for
+  // interactive experiments that don't fit a standard block type.
+  if (fm.custom) {
+    blocks.push({ type: 'custom', componentId: String(fm.custom) })
+  }
+
+  // ── 4. Parse body into blocks ──
   blocks.push(...parseBody(content))
 
   return {

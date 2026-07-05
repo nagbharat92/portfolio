@@ -35,7 +35,6 @@ export function Cursor({
         viewBox="0 0 16 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="drop-shadow-md"
       >
         <path
           d="M0.928548 0.25769L15.0708 8.72534C15.7587 9.12145 15.4477 10.1721 14.6534 10.1171L8.37029 9.6826C8.1308 9.66598 7.90019 9.77 7.74603 9.96245L5.82538 12.3594C5.33897 12.9665 4.36157 12.6453 4.34933 11.8688L4.15169 0.986982C4.13829 0.13847 5.08471 -0.339953 5.71959 0.14689L0.928548 0.25769Z"
@@ -51,7 +50,7 @@ export function Cursor({
 
       {/* Name label */}
       <div
-        className="ml-2.5 mt-0.5 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white shadow-lg whitespace-nowrap"
+        className="ml-2.5 mt-0.5 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white whitespace-nowrap"
         style={{ backgroundColor: color }}
       >
         <span>{name}</span>

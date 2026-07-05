@@ -12,8 +12,9 @@
 }
 
 @theme inline {
-  /* Font families */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Font families — display (Chango) + body (Cause) pairing. */
+  --font-sans: 'Cause', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Chango', 'Cause', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Colors */
   --color-background: hsl(var(--background));
@@ -77,6 +78,10 @@
     background-size: 24px 24px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  /* Display type — Oswald on every heading so the pairing flows site-wide. */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
   }
   a {
     color: inherit;
@@ -408,12 +413,6 @@
      Never use as a decorative border or divider. */
   --ring:                  var(--gray-950);
 
-  /* Isometric home-grid — the decorative blueprint field behind the title.
-     Authored as literal colors (not primitive refs) so the canvas renderer can
-     read them straight from getComputedStyle. Subtle by design. */
-  --iso-line:              hsl(0 0% 0% / 0.05); /* thin rhombus outline        */
-  --iso-fill:              hsl(0 0% 0% / 0.07); /* hovered / tapped tile fill   */
-
   --radius: 1.5rem;
 
   /* Sidebar surface tokens — use the slate family for a subtly cooler sidebar tone.
@@ -464,10 +463,6 @@
   --border:                var(--gray-850);
   --input:                 var(--gray-850);
   --ring:                  var(--gray-500);
-
-  /* Isometric home-grid — light ink on the dark field (see light theme note). */
-  --iso-line:              hsl(0 0% 100% / 0.05);
-  --iso-fill:              hsl(0 0% 100% / 0.09);
 
   /* Sidebar */
   --sidebar-background:           var(--slate-900);
@@ -587,6 +582,118 @@ button:not([data-animating]):hover .typewriter-text {
 
 .animate-sidebar-in {
   animation: sidebar-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* =============================================================================
+   CONTENT BLOCK TYPOGRAPHY
+   Body/meta text in content blocks (paragraphs, lists, inline code, stats,
+   captions) reads at 20px on every page. Block components consume this token as
+   text-(length:--content-body-size); section titles are fixed (40px).
+   ============================================================================= */
+:root {
+  --content-body-size: 1.25rem; /* 20px */
+}
+
+/* =============================================================================
+   ROUGH NAV FOLDERS
+   Home-page navigation as hand-drawn ink line-art folders (roughjs). Each folder
+   is drawn ONCE from a fixed per-folder seed (src/components/rough-folder.tsx), so
+   the sketch is deterministic and never re-wobbles. Two stacked SVGs share a
+   136×108 viewBox: __base (body + tab outline) and __lid (a pre-seeded flap).
+   Strokes stay stable on hover — only CSS animates: the whole folder LIFTS and the
+   lid SVG swings open (rotateX about its bottom hinge) + fades in, so the folder
+   appears to open. Ink colour is currentColor (theme-aware). Honours reduced-motion.
+   ============================================================================= */
+
+.rough-folder {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-foreground); /* the ink — strokes inherit via currentColor */
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Perspective host for the lid's 3D open; the whole graphic lifts on hover. */
+.rough-folder__icon {
+  position: relative;
+  width: 8.5rem;   /* 136px — matches the SVG viewBox width  */
+  height: 6.75rem; /* 108px — matches the SVG viewBox height */
+  perspective: 700px;
+  transform: translateY(0);
+  transition: transform var(--duration-slow) var(--ease-spring);
+}
+
+/* Both layers fill the icon box and share the 136×108 viewBox so their drawn
+   coordinates line up. overflow:visible lets the rough corner overshoot show. */
+.rough-folder__base,
+.rough-folder__lid {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Pre-seeded lid flap — hidden at rest; on hover it fades in and swings open
+   about its bottom hinge (the front cover's bottom edge ≈ y=90 of the 108-tall
+   viewBox) so the folder appears to open. */
+.rough-folder__lid {
+  opacity: 0;
+  transform-origin: 50% 83%;
+  transform: rotateX(0deg);
+  transition: opacity var(--duration-slow) var(--ease-out),
+              transform var(--duration-slow) var(--ease-spring);
+}
+
+.rough-folder__label {
+  font-size: 1.25rem; /* 20px */
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  color: var(--color-muted-foreground);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* Hover / keyboard focus — lift the whole folder, open the lid, ink the label. */
+.rough-folder:hover .rough-folder__icon,
+.rough-folder:focus-visible .rough-folder__icon {
+  transform: translateY(-6px);
+}
+
+.rough-folder:hover .rough-folder__lid,
+.rough-folder:focus-visible .rough-folder__lid {
+  opacity: 1;
+  transform: rotateX(-32deg);
+}
+
+.rough-folder:hover .rough-folder__label,
+.rough-folder:focus-visible .rough-folder__label {
+  color: var(--color-foreground);
+}
+
+/* Keyboard focus ring (mirrors the app's --ring token). */
+.rough-folder:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rough-folder__icon,
+  .rough-folder__lid {
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .rough-folder:hover .rough-folder__icon,
+  .rough-folder:focus-visible .rough-folder__icon,
+  .rough-folder:hover .rough-folder__lid,
+  .rough-folder:focus-visible .rough-folder__lid {
+    transform: none;
+  }
 }
 
 /* App layout */

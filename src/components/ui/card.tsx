@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils"
  * Visual variants for the Card component.
  * Card is a container for grouping related content into a distinct visual unit.
  *
- * @variant default — Border, background, and shadow. Standard card appearance.
+ * @variant default — Border and background. Standard card appearance.
  *                   Use when the card should read as a clearly separate surface
  *                   from the page background.
- * @variant ghost   — No border, transparent background, no shadow.
+ * @variant ghost   — No border, transparent background.
  *                   Use when content needs card-like structure (header, content, footer)
  *                   but should not appear as a visually distinct container —
  *                   for example, a section within an already-elevated panel.
@@ -19,8 +19,8 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default: "border border-border bg-card shadow",
-        ghost:   "border-transparent bg-transparent shadow-none",
+        default: "border border-border bg-card",
+        ghost:   "border-transparent bg-transparent",
       },
     },
     defaultVariants: {

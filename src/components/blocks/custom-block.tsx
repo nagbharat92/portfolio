@@ -1,6 +1,7 @@
 import type { CustomBlock } from "@/data/pages"
 import { HomeHero } from "@/components/blocks/custom/home-hero"
 import { HomeSocial } from "@/components/blocks/custom/home-social"
+import { FolderLab } from "@/components/blocks/custom/folder-lab"
 
 type CustomBlockComponent = React.ComponentType<{
   index: number
@@ -18,6 +19,7 @@ type CustomBlockComponent = React.ComponentType<{
 const REGISTRY: Record<string, CustomBlockComponent> = {
   'home-hero':   HomeHero,
   'home-social': HomeSocial,
+  'folder-lab':  FolderLab,
 }
 
 export function CustomBlockRenderer({
