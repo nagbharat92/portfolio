@@ -74,8 +74,6 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    background-image: radial-gradient(circle, hsl(var(--border)) 1.4px, transparent 1.4px);
-    background-size: 24px 24px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -131,51 +129,36 @@
 
 /* =============================================================================
    TYPOGRAPHY TOKENS
-   Font family, weight, and scale conventions.
-   Sizes map to Tailwind's built-in text-* utilities.
-   Weights map to Tailwind's built-in font-* utilities.
-   These tokens are the reference point for all text decisions in the project.
+   Font families live in @theme inline above: --font-sans (Cause, body) and
+   --font-display (Chango, headings). This block holds the weight tokens and
+   documents the type RAMP the site actually renders — four steps, nothing more.
    ============================================================================= */
 
 :root {
-  /* Font family
-     Used via: font-sans (Tailwind utility, registered in @theme inline above)
-     Direct CSS reference: var(--font-sans) — for non-Tailwind contexts only */
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-
   /* Font weights
-     Used via: font-normal, font-medium, font-semibold, font-bold (Tailwind utilities)
-     Direct CSS reference: var(--font-weight-*) — for non-Tailwind contexts only */
+     Used via font-normal / font-medium / font-semibold / font-bold (Tailwind),
+     or var(--font-weight-*) directly (e.g. .rough-folder__label). */
   --font-weight-normal:   400;
   --font-weight-medium:   500;
   --font-weight-semibold: 600;
   --font-weight-bold:     700;
 
-  /* Type scale — semantic intent reference
-     These are NOT new CSS properties. They are documentation.
-     The actual sizes come from Tailwind's built-in text-* utilities.
+  /* Type ramp — the ONLY text sizes the site renders (not a full Tailwind scale).
 
-     text-xs   (12px) — Badges, tooltips, timestamps, keyboard shortcuts
-     text-sm   (14px) — UI chrome: sidebar, buttons, inputs, labels, card descriptions
-     text-base (16px) — Primary body copy, article paragraphs
-     text-lg   (18px) — Lead paragraphs, intro text
-     text-xl   (20px) — Card headings, widget titles, minor section labels
-     text-2xl  (24px) — Subsection headings (h3)
-     text-3xl  (30px) — Section headings (h2)
-     text-4xl  (36px) — Page headings (h1)
-     text-5xl  (48px) — Hero / display text
+     Step          Size             Weight     Font    Role
+     ───────────   ──────────────   ────────   ──────  ────────────────────────────
+     Title (h1)    2.5rem   / 40px  700        Chango  home + about hero titles
+     Section (h2)  1.5rem   / 24px  700        Cause   project-page section titles
+     Body / lead   1.25rem  / 20px  400 · 500  Cause   body copy, taglines, nav
+                                                        folder labels, social links,
+                                                        captions, stats, inline code
+     UI chrome     0.875rem / 14px  400 · 500  Cause   sidebar nav + footer, lab
+                   (text-sm)                            control labels
 
-     Pairing guide:
-     text-xs   → leading-none,    font-medium
-     text-sm   → leading-snug,    font-normal
-     text-base → leading-relaxed, font-normal
-     text-lg   → leading-snug,    font-normal
-     text-xl   → leading-snug,    font-semibold
-     text-2xl  → leading-tight,   font-semibold  + tracking-tight
-     text-3xl  → leading-tight,   font-semibold  + tracking-tight
-     text-4xl  → leading-tight,   font-bold      + tracking-tight
-     text-5xl  → leading-none,    font-bold      + tracking-tight
-  */
+     Wiring: 20px body = --content-body-size (defined below); the 40px/24px titles
+     use arbitrary utilities text-[2.5rem] / text-[1.5rem]; 14px uses text-sm.
+     Inline <strong> in body copy is font-semibold (600). Chango ships weight 400
+     only, so 700 on h1 renders as faux-bold (fine for a heavy poster face). */
 }
 
 /* =============================================================================
@@ -273,6 +256,11 @@
   --list-indent:        var(--space-5);   /* 20px list left padding            */
   --code-px:            var(--space-1_5); /*  6px inline code horizontal       */
   --code-py:            var(--space-0_5); /*  2px inline code vertical         */
+
+  /* ── Page title ─────────────────────────────────────────────────────────────
+     Project page title — stands in for the first section heading. */
+  --page-title-gap:     5rem;             /* 80px generous space above title (from the links row) */
+  --page-title-mb:      var(--space-8);   /* 32px title → first paragraph      */
 
   /* ── Hero ─────────────────────────────────────────────────────────────────
      Home hero block spacing. */
@@ -481,13 +469,28 @@ button:not([data-animating]):hover .typewriter-text {
   text-underline-offset: 4px;
 }
 
+.typewriter-slot {
+  position: relative;
+  display: inline-block;
+}
+
+/* Invisible sizer that reserves the resting footprint ("email me") so the
+   surrounding paragraph never reflows while the label animates. The visible
+   label is overlaid absolutely, so its width changes don't affect layout. */
+.typewriter-ghost {
+  visibility: hidden;
+  white-space: nowrap;
+}
+
 .typewriter-text {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   border-right: 2px solid currentColor;
   max-width: 0;
-  vertical-align: bottom;
   text-align: left;
 }
 
@@ -588,7 +591,8 @@ button:not([data-animating]):hover .typewriter-text {
    CONTENT BLOCK TYPOGRAPHY
    Body/meta text in content blocks (paragraphs, lists, inline code, stats,
    captions) reads at 20px on every page. Block components consume this token as
-   text-(length:--content-body-size); section titles are fixed (40px).
+   text-(length:--content-body-size); section titles (text-block h2) are fixed at
+   24px via text-[1.5rem].
    ============================================================================= */
 :root {
   --content-body-size: 1.25rem; /* 20px */
@@ -692,6 +696,100 @@ button:not([data-animating]):hover .typewriter-text {
   .rough-folder:focus-visible .rough-folder__icon,
   .rough-folder:hover .rough-folder__lid,
   .rough-folder:focus-visible .rough-folder__lid {
+    transform: none;
+  }
+}
+
+/* =============================================================================
+   FOLDER LAB — parametric folder (src/components/lab/lab-folder.tsx)
+   Two stacked leaves under a shared perspective. On hover the FRONT leaf tilts
+   open toward the viewer (top edge splays wider) while the BACK leaf recedes
+   (translateZ) and fades lighter — depth. All values come from CSS variables the
+   lab sliders set inline, so the motion is tunable live. Honours reduced-motion.
+   ============================================================================= */
+.lab-folder {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--color-foreground);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.lab-folder__icon {
+  position: relative;
+  perspective: var(--lab-persp, 600px);
+  transform-style: preserve-3d;
+  transform: translateY(0);
+  transition: transform var(--duration-slow) var(--ease-spring);
+}
+
+.lab-folder__back,
+.lab-folder__front {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: transform var(--duration-slow) var(--ease-spring),
+              opacity var(--duration-slow) var(--ease-out);
+}
+
+/* Front leaf hinges at its bottom edge so its top can tilt toward the viewer. */
+.lab-folder__front {
+  transform-origin: 50% 100%;
+}
+
+/* Hover / focus — lift the whole icon, open the front, recede + fade the back. */
+.lab-folder:hover .lab-folder__icon,
+.lab-folder:focus-visible .lab-folder__icon {
+  transform: translateY(var(--lab-lift, -10px));
+}
+.lab-folder:hover .lab-folder__front,
+.lab-folder:focus-visible .lab-folder__front {
+  transform: rotateX(var(--lab-tilt, -34deg));
+}
+.lab-folder:hover .lab-folder__back,
+.lab-folder:focus-visible .lab-folder__back {
+  transform: translateZ(var(--lab-back-z, -24px));
+  opacity: var(--lab-back-fade, 0.5);
+}
+
+.lab-folder__label {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  color: var(--color-muted-foreground);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+.lab-folder:hover .lab-folder__label,
+.lab-folder:focus-visible .lab-folder__label {
+  color: var(--color-foreground);
+}
+
+.lab-folder:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-folder__icon,
+  .lab-folder__front,
+  .lab-folder__back {
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+  .lab-folder:hover .lab-folder__icon,
+  .lab-folder:focus-visible .lab-folder__icon,
+  .lab-folder:hover .lab-folder__front,
+  .lab-folder:focus-visible .lab-folder__front,
+  .lab-folder:hover .lab-folder__back,
+  .lab-folder:focus-visible .lab-folder__back {
     transform: none;
   }
 }

@@ -41,6 +41,12 @@ interface RoughFolderProps {
   to?: string
   /** External URL. When set, renders an anchor that opens in a new tab. */
   href?: string
+  /**
+   * Elongate the folder's right side by this many viewBox units (default 0). Only
+   * the horizontal edges lengthen and the right edge shifts out — the tab/left edge
+   * stay put. Real SVG geometry (no scaling), so strokes never squash or stretch.
+   */
+  widthExtend?: number
   /** Extra classes merged onto the FadeInUp wrapper. */
   className?: string
 }
@@ -50,14 +56,20 @@ const VIEW_H = 108
 const STROKE_WIDTH = 1.6
 
 /**
- * Folder silhouette (body + tab) as a single closed path, and the pre-seeded lid
- * flap — both authored in the 136×108 viewBox with simple straight segments; the
- * hand-drawn waver + slight corner overshoot come from roughjs, not the geometry.
+ * Folder silhouette (body + tab) and lid front cover, authored in the 136×108
+ * viewBox with simple straight segments; the hand-drawn waver + slight corner
+ * overshoot come from roughjs, not the geometry.
+ *
+ * `ext` (widthExtend, in viewBox units) elongates ONLY the right side: the tab and
+ * left edge stay put while the top/bottom horizontal edges lengthen and the right
+ * vertical shifts out by `ext`. This is real geometry — no CSS scaling — so the
+ * strokes never squash or stretch.
  */
-const FOLDER_PATH = "M 12 16 L 52 16 L 68 34 L 124 34 L 124 94 L 12 94 Z"
-// The lid is the folder's FRONT cover (inset slightly from the body). It's hidden
-// at rest and, on hover, swings open about its bottom hinge so the folder opens.
-const LID_PATH = "M 15 40 L 121 40 L 121 90 L 15 90 Z"
+const BODY_RIGHT = 124 // right edge x of the body at rest (widthExtend 0)
+const LID_RIGHT = 121 // right edge x of the lid front cover at rest
+const folderPath = (ext: number) =>
+  `M 12 16 L 52 16 L 68 34 L ${BODY_RIGHT + ext} 34 L ${BODY_RIGHT + ext} 94 L 12 94 Z`
+const lidPath = (ext: number) => `M 15 40 L ${LID_RIGHT + ext} 40 L ${LID_RIGHT + ext} 90 L 15 90 Z`
 
 /**
  * Shared draw options. `fill` is omitted (outlines only). `roughness` sits just
@@ -72,22 +84,28 @@ const DRAW_OPTIONS = {
   preserveVertices: false,
 } as const
 
-/** Generate the (deterministic) roughjs path data once for a given seed. */
-function buildPaths(seed: number) {
+/**
+ * Generate the (deterministic) roughjs path data for a given seed + width. Because
+ * roughjs consumes its seeded RNG in path order, the fixed left points (tab + left
+ * edge, drawn first) keep the SAME wobble as `ext` grows — only the elongating
+ * right-side edges redraw. Memoised on [seed, ext] so it regenerates only when the
+ * width actually changes, never on hover/re-render.
+ */
+function buildPaths(seed: number, ext: number) {
   const generator = rough.generator()
   const folder = generator
-    .toPaths(generator.path(FOLDER_PATH, { ...DRAW_OPTIONS, seed }))
+    .toPaths(generator.path(folderPath(ext), { ...DRAW_OPTIONS, seed }))
     .map((p) => p.d)
   const lid = generator
-    .toPaths(generator.path(LID_PATH, { ...DRAW_OPTIONS, seed: seed + 1 }))
+    .toPaths(generator.path(lidPath(ext), { ...DRAW_OPTIONS, seed: seed + 1 }))
     .map((p) => p.d)
   return { folder, lid }
 }
 
 /** The layered folder graphic. Decorative — the label names the control. */
-function FolderGraphic({ seed }: { seed: number }) {
-  const { folder, lid } = useMemo(() => buildPaths(seed), [seed])
-  const viewBox = `0 0 ${VIEW_W} ${VIEW_H}`
+function FolderGraphic({ seed, widthExtend }: { seed: number; widthExtend: number }) {
+  const { folder, lid } = useMemo(() => buildPaths(seed, widthExtend), [seed, widthExtend])
+  const viewBox = `0 0 ${VIEW_W + widthExtend} ${VIEW_H}`
   const strokeProps = {
     fill: "none",
     stroke: "currentColor",
@@ -95,9 +113,14 @@ function FolderGraphic({ seed }: { seed: number }) {
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
   }
+  // Grow the icon box in step with the viewBox (same aspect) so the SVG scales
+  // uniformly — wider, never squashed/stretched. At widthExtend 0, defer to CSS.
+  const iconStyle = widthExtend
+    ? { aspectRatio: `${VIEW_W + widthExtend} / ${VIEW_H}`, width: "auto" }
+    : undefined
 
   return (
-    <span className="rough-folder__icon" aria-hidden="true">
+    <span className="rough-folder__icon" style={iconStyle} aria-hidden="true">
       <svg className="rough-folder__base" viewBox={viewBox}>
         <g {...strokeProps}>
           {folder.map((d, i) => (
@@ -116,19 +139,19 @@ function FolderGraphic({ seed }: { seed: number }) {
   )
 }
 
-export function RoughFolder({ label, seed, index = 0, to, href, className }: RoughFolderProps) {
+export function RoughFolder({ label, seed, index = 0, to, href, widthExtend = 0, className }: RoughFolderProps) {
   const { select } = useFolderTree()
 
   return (
     <FadeInUp i={index} className={cn("inline-flex", className)}>
       {href ? (
         <a className="rough-folder" href={href} target="_blank" rel="noopener noreferrer">
-          <FolderGraphic seed={seed} />
+          <FolderGraphic seed={seed} widthExtend={widthExtend} />
           <span className="rough-folder__label">{label}</span>
         </a>
       ) : (
         <button type="button" className="rough-folder" onClick={() => to && select(to)}>
-          <FolderGraphic seed={seed} />
+          <FolderGraphic seed={seed} widthExtend={widthExtend} />
           <span className="rough-folder__label">{label}</span>
         </button>
       )}

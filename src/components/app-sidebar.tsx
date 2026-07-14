@@ -46,8 +46,8 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
     label.addEventListener("animationend", function onErased() {
       label.removeEventListener("animationend", onErased)
 
-      // Phase 2: type "email copied!"
-      label.textContent = "email copied!"
+      // Phase 2: type "copied!"
+      label.textContent = "copied!"
       btn.classList.add("pointer-events-none", "cursor-default")
       label.className = "typewriter-text typing-in"
 
@@ -116,7 +116,8 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
             aria-label="Copy email to clipboard"
             className={`${linkClasses} cursor-pointer`}
           >
-            <span className="inline">
+            <span className="typewriter-slot">
+              <span aria-hidden="true" className="typewriter-ghost">email me</span>
               <span ref={labelRef} className="typewriter-text idle">email me</span>
             </span>
           </button>

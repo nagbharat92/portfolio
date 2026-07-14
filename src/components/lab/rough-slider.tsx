@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from "react"
+import { useLayoutEffect, useMemo, useRef, useState } from "react"
 import type { KeyboardEvent, PointerEvent } from "react"
-import { LAB_WIDTH, STROKE_WIDTH, circlePaths, linePaths } from "@/components/lab/rough"
+import { STROKE_WIDTH, circlePaths, linePaths } from "@/components/lab/rough"
 
 interface RoughSliderProps {
   /** Control label, shown top-left and used as the accessible name. */
@@ -21,8 +21,26 @@ const HEIGHT = 40
 const CY = HEIGHT / 2
 const PAD = 16 // track inset — keeps the thumb clear of the ends
 const TRACK_X1 = PAD
-const TRACK_X2 = LAB_WIDTH - PAD
 const THUMB_R = 9
+
+/** Measure an element's width, updating on resize so the track fills its cell. */
+function useTrackWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [w, setW] = useState(0)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const set = (x: number) => setW((prev) => (prev === x ? prev : x))
+    set(Math.round(el.clientWidth))
+    const ro = new ResizeObserver((entries) => {
+      const cr = entries[0]?.contentRect
+      if (cr) set(Math.round(cr.width))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, w] as const
+}
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
 
@@ -46,11 +64,12 @@ export function RoughSlider({
   format,
   seed = 200,
 }: RoughSliderProps) {
-  const trackRef = useRef<HTMLDivElement>(null)
+  const [trackRef, w] = useTrackWidth<HTMLDivElement>()
   const [dragging, setDragging] = useState(false)
   const [focused, setFocused] = useState(false)
 
-  const track = useMemo(() => linePaths(TRACK_X1, CY, TRACK_X2, CY, seed), [seed])
+  const trackX2 = Math.max(TRACK_X1 + 1, w - PAD)
+  const track = useMemo(() => linePaths(TRACK_X1, CY, trackX2, CY, seed), [seed, trackX2])
   const thumb = useMemo(() => circlePaths(0, 0, THUMB_R * 2, seed + 1), [seed])
   const ring = useMemo(() => circlePaths(0, 0, (THUMB_R + 4) * 2, seed + 2), [seed])
 
@@ -60,13 +79,13 @@ export function RoughSlider({
   }
 
   const fraction = (value - min) / (max - min)
-  const thumbX = TRACK_X1 + fraction * (TRACK_X2 - TRACK_X1)
+  const thumbX = TRACK_X1 + fraction * (trackX2 - TRACK_X1)
 
   const setFromClientX = (clientX: number) => {
     const el = trackRef.current
     if (!el) return
     const rect = el.getBoundingClientRect()
-    const frac = clamp((clientX - rect.left - TRACK_X1) / (TRACK_X2 - TRACK_X1), 0, 1)
+    const frac = clamp((clientX - rect.left - TRACK_X1) / (trackX2 - TRACK_X1), 0, 1)
     onChange(snap(min + frac * (max - min)))
   }
 
@@ -127,7 +146,7 @@ export function RoughSlider({
   const active = dragging || focused
 
   return (
-    <div className="flex w-fit flex-col gap-2">
+    <div className="flex w-full flex-col gap-2">
       <div className="flex items-baseline justify-between">
         <span className="text-sm font-medium text-foreground">{label}</span>
         <span className="text-sm tabular-nums text-muted-foreground">
@@ -156,9 +175,9 @@ export function RoughSlider({
       >
         <svg
           aria-hidden="true"
-          width={LAB_WIDTH}
+          width={w || 0}
           height={HEIGHT}
-          viewBox={`0 0 ${LAB_WIDTH} ${HEIGHT}`}
+          viewBox={`0 0 ${w || 1} ${HEIGHT}`}
           className="block overflow-visible text-foreground"
         >
           {/* Track */}

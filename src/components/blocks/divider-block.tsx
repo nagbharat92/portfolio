@@ -4,7 +4,7 @@ import { RoughLine } from "@/components/ui/rough-ink"
 export function DividerBlockRenderer({ index }: { index: number }) {
   return (
     <FadeInUp i={index}>
-      <RoughLine className="text-muted-foreground" />
+      <RoughLine seed={12} className="w-12 text-muted-foreground" />
     </FadeInUp>
   )
 }

@@ -12,8 +12,7 @@ import { RoughFolder } from "@/components/rough-folder"
  */
 export function HomeWorld() {
   return (
-    // bg-background covers the global body dot-grid so home stays a clean,
-    // calm title screen (the dots remain on the shell routes).
+    // A clean, calm full-bleed title screen on the page background.
     <div className="relative min-h-svh w-full overflow-hidden bg-background">
       <div className="relative z-10 flex min-h-svh w-full flex-col items-center justify-center p-(--page-inset)">
         {/* Centered as a group, but left-aligned within — the title and tagline

@@ -1,4 +1,5 @@
 import { BlockRenderer } from "@/components/blocks/block-renderer"
+import { FadeInUp } from "@/components/ui/fade-in-up"
 import type { PageNode } from "@/data/pages"
 
 interface ProjectCanvasProps {
@@ -11,6 +12,11 @@ interface ProjectCanvasProps {
  * Layout:
  *   - A single scrollable content column; blocks are centered with a max width.
  *
+ * Page title:
+ *   - The page name is rendered as a large display-font title that stands in for
+ *     the first section heading (that text block's own title is suppressed), with
+ *     generous space above it to separate it from the stats / links row.
+ *
  * Block spacing:
  *   - Default gap between blocks: mt-10
  *   - stats block gets mt-4 (sits tight below the iframe card)
@@ -18,6 +24,12 @@ interface ProjectCanvasProps {
 export function ProjectCanvas({ page }: ProjectCanvasProps) {
   const blocks = page.blocks ?? []
   const isHome = page.id === 'home'
+
+  // The page title replaces the first section heading: find the first text block
+  // that carries a title, drop that title, and render the page name above it.
+  const titleBlockIndex = blocks.findIndex(
+    (b) => b.type === 'text' && Boolean(b.title)
+  )
 
   return (
     <div className="relative h-full">
@@ -30,15 +42,41 @@ export function ProjectCanvas({ page }: ProjectCanvasProps) {
           }`}
         >
           {blocks.map((block, i) => {
-            const isIframe = block.type === 'iframe'
+            const isFullWidth =
+              block.type === 'iframe' ||
+              (block.type === 'custom' && block.componentId === 'folder-lab')
             const isStats = block.type === 'stats'
+            const isTitleBlock = i === titleBlockIndex
+
+            // Suppress the first section heading — the page title stands in for it.
+            const rendered =
+              isTitleBlock && block.type === 'text'
+                ? { ...block, title: undefined }
+                : block
+
+            const gap =
+              i === 0
+                ? ''
+                : isTitleBlock
+                  ? 'mt-(--page-title-gap)'
+                  : isStats
+                    ? 'mt-(--block-gap-tight)'
+                    : 'mt-(--block-gap)'
+
             return (
-              <div key={i} className={i > 0 ? (isStats ? 'mt-(--block-gap-tight)' : 'mt-(--block-gap)') : ''}>
-                {isIframe ? (
-                  <BlockRenderer block={block} index={i} />
+              <div key={i} className={gap}>
+                {isFullWidth ? (
+                  <BlockRenderer block={rendered} index={i} />
                 ) : (
                   <div className="mx-auto max-w-2xl">
-                    <BlockRenderer block={block} index={i} />
+                    {isTitleBlock && (
+                      <FadeInUp i={i}>
+                        <h1 className="mb-(--page-title-mb) font-display text-[2rem] sm:text-[2.5rem] leading-[1.1] tracking-tight text-foreground">
+                          {page.name}
+                        </h1>
+                      </FadeInUp>
+                    )}
+                    <BlockRenderer block={rendered} index={i} />
                   </div>
                 )}
               </div>

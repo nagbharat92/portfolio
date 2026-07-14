@@ -53,3 +53,36 @@ export function circlePaths(
     .toPaths(generator.circle(cx, cy, diameter, { ...ROUGH_OPTIONS, seed }))
     .map((p) => p.d)
 }
+
+// ─── Parametric helpers (Folder Lab folder + colour/pattern tiles) ───────────
+
+/** A single roughjs path plus the stroke/fill hints needed to paint it. */
+export type RoughPathInfo = { d: string; stroke: string; strokeWidth: number; fill?: string }
+
+/**
+ * Full roughjs path infos for a raw SVG path string + arbitrary options. Unlike
+ * linePaths/circlePaths (which bake the shared ink options), this passes the
+ * caller's own options through — so the lab can drive every roughjs knob
+ * (roughness, bowing, fill, fillStyle, hachureGap, …). Outline paths can be
+ * re-coloured on render; FILL paths must keep their stroke/fill/strokeWidth so
+ * hachure / cross-hatch / dots / solid fills paint correctly.
+ */
+export function roughPathInfos(d: string, options: Record<string, unknown>): RoughPathInfo[] {
+  return generator.toPaths(generator.path(d, options)) as RoughPathInfo[]
+}
+
+/** Rectangle as an SVG path string (for rough outlines / fills). */
+export function rectPath(x: number, y: number, w: number, h: number): string {
+  return `M ${x} ${y} L ${x + w} ${y} L ${x + w} ${y + h} L ${x} ${y + h} Z`
+}
+
+/** roughjs fill patterns worth exposing in the lab. */
+export const FILL_STYLES = [
+  "hachure",
+  "cross-hatch",
+  "zigzag",
+  "dots",
+  "dashed",
+  "zigzag-line",
+] as const
+export type FillStyle = (typeof FILL_STYLES)[number]
