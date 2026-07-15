@@ -79,7 +79,7 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
   }, [busy])
   return (
     <Sidebar collapsible="none" variant="floating" className="animate-sidebar-in">
-      <SidebarHeader className="p-(--sidebar-content-padding) pb-0">
+      <SidebarHeader className="p-(--sidebar-content-padding) pb-(--sidebar-section-gap)">
         <button
           onClick={() => select('home')}
           className="flex w-full items-center gap-(--tree-item-gap) rounded-md px-(--tree-item-px) py-(--tree-item-py) text-sm font-medium text-sidebar-foreground transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring cursor-pointer"
@@ -89,7 +89,10 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
         </button>
       </SidebarHeader>
 
-      <SidebarContent className="p-(--sidebar-content-padding) hide-scrollbar">
+      {/* Hairline anchoring Home as the root, above the grouped tree. */}
+      <SidebarSeparator />
+
+      <SidebarContent className="p-(--sidebar-content-padding) pt-(--sidebar-section-gap) hide-scrollbar">
         <FolderTree />
       </SidebarContent>
 

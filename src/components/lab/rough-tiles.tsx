@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * Hand-drawn selectable tiles for the Folder Lab:
- *   - RoughSwatches — pastel Apple-ish colours (index -1 = default ink).
+ *   - RoughSwatches — the accent wheel (index -1 = default ink).
  *   - RoughPatterns — a preview of each roughjs fill pattern.
  * Each tile is a small rough square (squiggly, like everything else in the lab).
  */
@@ -19,22 +19,22 @@ const TILE = 30
 const INSET = 4
 const INNER = TILE - INSET * 2
 
-/** Apple-ish system colours — `back` = a lightly-tinted leaf, `front` = darker shade. */
-export type Swatch = { name: string; back: string; front: string }
+/** Accent wheel from src/tokens.css — the graphics/illustration palette. One
+ *  solid colour per swatch, applied to both leaves. Theme-aware via CSS vars. */
+export type Swatch = { name: string; color: string }
 export const SWATCHES: Swatch[] = [
-  { name: "White", back: "#FFFFFF", front: "#C7C7CC" },
-  { name: "Red", back: "#EC7F82", front: "#E5484D" },
-  { name: "Orange", back: "#EFAA55", front: "#E8850C" },
-  { name: "Yellow", back: "#DDBB4D", front: "#CF9E00" },
-  { name: "Green", back: "#6DC284", front: "#2FA84F" },
-  { name: "Mint", back: "#59C0B4", front: "#12A594" },
-  { name: "Teal", back: "#62B6C5", front: "#1F97AC" },
-  { name: "Blue", back: "#6D9AE9", front: "#2F6FE0" },
-  { name: "Indigo", back: "#8180CD", front: "#4B49B8" },
-  { name: "Purple", back: "#B879DB", front: "#9A3FCB" },
-  { name: "Pink", back: "#EB81AB", front: "#E24B87" },
-  { name: "Brown", back: "#AD9781", front: "#8A6A4B" },
-  { name: "Gray", back: "#9A9A9D", front: "#6E6E73" },
+  { name: "Rose", color: "var(--accent-rose)" },
+  { name: "Coral", color: "var(--accent-coral)" },
+  { name: "Amber", color: "var(--accent-amber)" },
+  { name: "Yellow", color: "var(--accent-yellow-wheel)" },
+  { name: "Citron", color: "var(--accent-citron)" },
+  { name: "Green", color: "var(--accent-green-wheel)" },
+  { name: "Teal", color: "var(--accent-teal)" },
+  { name: "Cyan", color: "var(--accent-cyan)" },
+  { name: "Blue", color: "var(--accent-blue-wheel)" },
+  { name: "Indigo", color: "var(--accent-indigo)" },
+  { name: "Violet", color: "var(--accent-violet)" },
+  { name: "Magenta", color: "var(--accent-magenta)" },
 ]
 
 function Tile({
@@ -90,9 +90,9 @@ export function RoughSwatches({ value, onChange }: RoughSwatchesProps) {
       roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
         fill: "none",
         stroke: "currentColor",
-        roughness: 1.1,
-        bowing: 1,
-        strokeWidth: 1.3,
+        roughness: 0.5,
+        bowing: 0,
+        strokeWidth: 1,
         seed: 39,
       }),
     [],
@@ -101,12 +101,12 @@ export function RoughSwatches({ value, onChange }: RoughSwatchesProps) {
     () =>
       SWATCHES.map((s, i) =>
         roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
-          fill: s.front,
+          fill: s.color,
           fillStyle: "solid",
-          stroke: s.front,
-          roughness: 1.1,
-          bowing: 1,
-          strokeWidth: 1.3,
+          stroke: "currentColor",
+          roughness: 0.5,
+          bowing: 0,
+          strokeWidth: 1,
           seed: 40 + i,
         }),
       ),
@@ -130,22 +130,36 @@ export function RoughSwatches({ value, onChange }: RoughSwatchesProps) {
 }
 
 interface RoughPatternsProps {
-  value: FillStyle
-  onChange: (style: FillStyle) => void
+  /** Selected fill pattern, or "none" for no fill. */
+  value: FillStyle | "none"
+  onChange: (style: FillStyle | "none") => void
   /** Concrete ink colour to draw the pattern preview with (theme-aware). */
   ink: string
 }
 
 export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
+  // "No fill" tile — a plain rough square (matches the Default-ink swatch).
+  const nonePaths = useMemo(
+    () =>
+      roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
+        fill: "none",
+        stroke: "currentColor",
+        roughness: 0.5,
+        bowing: 0,
+        strokeWidth: 1,
+        seed: 59,
+      }),
+    [],
+  )
   const tiles = useMemo(
     () =>
       FILL_STYLES.map((style, i) => {
         const outline = roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
           fill: "none",
           stroke: "currentColor",
-          roughness: 0.9,
-          bowing: 0.7,
-          strokeWidth: 1.1,
+          roughness: 0.5,
+          bowing: 0,
+          strokeWidth: 1,
           seed: 60 + i,
         })
         const pattern = roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
@@ -153,8 +167,8 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
           fillStyle: style,
           hachureGap: 3.5,
           fillWeight: 1,
-          roughness: 0.9,
-          bowing: 0.6,
+          roughness: 0.5,
+          bowing: 0,
           stroke: "none",
           seed: 61 + i,
         })
@@ -165,6 +179,7 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
 
   return (
     <div role="radiogroup" aria-label="Fill pattern" className="flex flex-wrap gap-2">
+      <Tile paths={nonePaths} selected={value === "none"} label="No fill" onClick={() => onChange("none")} />
       {FILL_STYLES.map((style, i) => (
         <Tile
           key={style}

@@ -14,15 +14,15 @@ import {
 
 function App() {
   const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains('dark')
+    document.documentElement.dataset.theme === 'dark'
   )
 
   useEffect(() => {
     const toggle = () => {
-      document.documentElement.classList.toggle('dark', dark)
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light'
       document
         .querySelector('meta[name="theme-color"]')
-        ?.setAttribute('content', dark ? '#0a0a0a' : '#f2f2f2')
+        ?.setAttribute('content', dark ? '#1A1815' : '#FCFAF3')
     }
 
     if (document.startViewTransition) {

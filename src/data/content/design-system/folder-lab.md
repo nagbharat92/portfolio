@@ -1,6 +1,6 @@
 ---
 id: folder-lab
-title: Folder Lab
+title: Strokes
 order: 1
 custom: folder-lab
 ---

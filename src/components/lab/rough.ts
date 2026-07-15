@@ -4,10 +4,9 @@ import rough from "roughjs"
  * Shared hand-drawn ("squiggly") ink settings + geometry for all Folder Lab UI.
  *
  * Every lab control (slider, divider, …) is drawn with roughjs using THESE
- * options, so the whole toolkit shares one look that matches the folder on the
- * home page (src/components/rough-folder.tsx — roughness 1.2 / bowing 1.3 /
- * stroke 1.6). When we build more controls, reuse these helpers so they stay
- * visually consistent.
+ * options, so the whole toolkit shares one look — the Folder Lab's default ink
+ * (roughness 0.5 / bowing 0 / stroke 1). When we build more controls, reuse
+ * these helpers so they stay visually consistent.
  *
  * DETERMINISTIC: shapes are generated once from a fixed integer `seed`, so a
  * control's sketch never re-wobbles as its value changes. Moving parts (e.g. a
@@ -15,9 +14,9 @@ import rough from "roughjs"
  * rather than re-generated.
  */
 export const ROUGH_OPTIONS = {
-  roughness: 1.2,
-  bowing: 1.3,
-  strokeWidth: 1.6,
+  roughness: 0.5,
+  bowing: 0,
+  strokeWidth: 1,
   preserveVertices: false,
 } as const
 
@@ -74,6 +73,40 @@ export function roughPathInfos(d: string, options: Record<string, unknown>): Rou
 /** Rectangle as an SVG path string (for rough outlines / fills). */
 export function rectPath(x: number, y: number, w: number, h: number): string {
   return `M ${x} ${y} L ${x + w} ${y} L ${x + w} ${y + h} L ${x} ${y + h} Z`
+}
+
+/**
+ * SVG path for a CLOSED polygon with rounded corners (radius r, in the points'
+ * own units). Each corner becomes a quadratic Bézier whose control point is the
+ * original vertex, so it rounds BOTH convex and concave corners. r is clamped
+ * per-corner to half of each adjacent edge so neighbouring corners never overlap.
+ * r <= 0 falls back to sharp corners (byte-identical to a plain M/L polygon).
+ */
+export function roundedPolygonPath(pts: { x: number; y: number }[], r: number): string {
+  const n = pts.length
+  if (n < 3) return ""
+  if (r <= 0) {
+    return `M ${pts[0].x} ${pts[0].y} ` + pts.slice(1).map((p) => `L ${p.x} ${p.y}`).join(" ") + " Z"
+  }
+  const round = (v: number) => Math.round(v * 100) / 100
+  const entry: { x: number; y: number }[] = []
+  const exit: { x: number; y: number }[] = []
+  for (let i = 0; i < n; i++) {
+    const curr = pts[i]
+    const prev = pts[(i - 1 + n) % n]
+    const next = pts[(i + 1) % n]
+    const dPrev = Math.hypot(prev.x - curr.x, prev.y - curr.y) || 1
+    const dNext = Math.hypot(next.x - curr.x, next.y - curr.y) || 1
+    const rr = Math.min(r, dPrev / 2, dNext / 2)
+    entry.push({ x: round(curr.x + ((prev.x - curr.x) / dPrev) * rr), y: round(curr.y + ((prev.y - curr.y) / dPrev) * rr) })
+    exit.push({ x: round(curr.x + ((next.x - curr.x) / dNext) * rr), y: round(curr.y + ((next.y - curr.y) / dNext) * rr) })
+  }
+  let d = `M ${entry[0].x} ${entry[0].y}`
+  for (let i = 0; i < n; i++) {
+    d += ` Q ${pts[i].x} ${pts[i].y} ${exit[i].x} ${exit[i].y}`
+    if (i < n - 1) d += ` L ${entry[i + 1].x} ${entry[i + 1].y}`
+  }
+  return d + " Z"
 }
 
 /** roughjs fill patterns worth exposing in the lab. */

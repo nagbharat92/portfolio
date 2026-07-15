@@ -44,7 +44,11 @@ export function ProjectCanvas({ page }: ProjectCanvasProps) {
           {blocks.map((block, i) => {
             const isFullWidth =
               block.type === 'iframe' ||
-              (block.type === 'custom' && block.componentId === 'folder-lab')
+              (block.type === 'custom' &&
+                (block.componentId === 'folder-lab' ||
+                block.componentId === 'type-lab' ||
+                block.componentId === 'color-lab' ||
+                block.componentId === 'motion-lab'))
             const isStats = block.type === 'stats'
             const isTitleBlock = i === titleBlockIndex
 

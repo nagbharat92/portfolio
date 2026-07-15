@@ -32,6 +32,7 @@
  *   Add a FolderNode at the top level of sidebarData.
  */
 
+import { UserRound, type LucideIcon } from 'lucide-react'
 import { contentTree } from 'virtual:content-pages'
 
 // ─── Block types ──────────────────────────────────────────────────────────────
@@ -150,6 +151,7 @@ export type PageNode = {
   name: string
   year?: number       // metadata — kept separate from blocks for filtering/sorting
   featured?: boolean  // reserved — not used in UI yet
+  icon?: LucideIcon   // optional sidebar glyph — defaults to a file icon when unset
   blocks?: Block[]    // ordered content blocks — undefined means no canvas content
 }
 
@@ -166,30 +168,24 @@ export type SidebarNode = FolderNode | PageNode
 
 export const sidebarData: SidebarNode[] = [
   {
-    id: 'about',
-    type: 'folder',
-    name: 'About',
-    children: [
+    id: 'about-bharat-nag',
+    type: 'page',
+    name: 'About Bharat',
+    icon: UserRound,
+    blocks: [
       {
-        id: 'about-bharat-nag',
-        type: 'page',
-        name: 'About Bharat Nag',
-        blocks: [
-          {
-            type: 'custom',
-            componentId: 'home-hero',
-          },
-          {
-            type: 'text',
-            body: `I spend my time at the intersection of design and engineering — making things that feel considered, building tools that get out of the way, and learning in public. Currently exploring what thoughtful product design looks like at a smaller scale.
+        type: 'custom',
+        componentId: 'home-hero',
+      },
+      {
+        type: 'text',
+        body: `I spend my time at the intersection of design and engineering — making things that feel considered, building tools that get out of the way, and learning in public. Currently exploring what thoughtful product design looks like at a smaller scale.
 
 This site is a living project. Everything here — the design system, the canvas, the tools — is being built from scratch and in the open. Work in progress by design.`,
-          },
-          {
-            type: 'custom',
-            componentId: 'home-social',
-          },
-        ],
+      },
+      {
+        type: 'custom',
+        componentId: 'home-social',
       },
     ],
   },

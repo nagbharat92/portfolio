@@ -1,0 +1,116 @@
+/**
+ * tokens.css — cream/pastel design system
+ * Source of truth: docs/design-system/theme-tokens.md
+ *
+ * Manual light/dark theming via a `data-theme` attribute on the root element
+ * (e.g. <html data-theme="dark">). This is NOT driven by prefers-color-scheme.
+ *
+ *   Light = default, declared on :root.
+ *   Dark  = overrides, declared on [data-theme="dark"].
+ *
+ * `color-scheme` is kept in sync with the active theme so native controls
+ * (form fields, scrollbars) and browser chrome match.
+ *
+ * NOTE ON NAMING COLLISION:
+ * The 12-hue graphics wheel (layer 3) contains yellow / green / blue, whose
+ * names would collide with the layer-2 UI accents (--accent-yellow, etc.) but
+ * carry different values. To preserve BOTH palettes, the three colliding wheel
+ * hues use a `-wheel` suffix: --accent-yellow-wheel, --accent-green-wheel,
+ * --accent-blue-wheel. The other nine wheel hues use plain names as requested.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* 1. Semantic UI tokens — one warm hue. Cards are just a shade DARKER than the
+     page: same warmth as --bg (same R–B gap), lower lightness — so no surface
+     reads MORE yellow than the background. One card surface for everything. */
+  --bg: #FCFAF3;
+  --surface: #F3F1E9;
+  --surface-raised: #FDFCF6;
+  --border: #E7E4DB;
+  --text: #161614;
+  --text-muted: #8A857A;
+  --text-faint: #B4AEA0;
+
+  /* Status — destructive (error / delete). Warm brick red, in-system. */
+  --destructive: #C25A4B;
+
+  /* 2. UI accents (the characterful originals) */
+  --accent-primary: #F4BADB;
+  --accent-primary-ink: #161614;
+  --accent-yellow: #F3D86E;
+  --accent-blue: #B6C9E8;
+  --accent-green: #A9AB66;
+
+  /* 3. Extended accent wheel (graphics / charts / categorical data)
+     Deepened from theme-tokens.md's pale pastels so each hue clears ~3:1 on the
+     cream --bg (the pale L80% originals sat at ~1.3-1.9:1 and washed out). Kept
+     as light as legibility allows per hue; the bright warm/green hues have to go
+     gold/olive to read on near-white cream. */
+  --accent-rose: #DB6692;
+  --accent-coral: #D77056;
+  --accent-amber: #B6822B;
+  --accent-yellow-wheel: #A18C26;
+  --accent-citron: #7E9523;
+  --accent-green-wheel: #2AA126;
+  --accent-teal: #259D85;
+  --accent-cyan: #2B97B6;
+  --accent-blue-wheel: #5A8DD8;
+  --accent-indigo: #8D7FE1;
+  --accent-violet: #B06EDD;
+  --accent-magenta: #D95EC0;
+
+  /* 4. Warm neutral ramp (theme-independent — one ramp, defined once) */
+  --neutral-0: #FAF8F5;
+  --neutral-50: #F8F6F2;
+  --neutral-100: #EFECE6;
+  --neutral-200: #E2DED5;
+  --neutral-300: #CAC5B9;
+  --neutral-400: #AAA392;
+  --neutral-500: #8C8573;
+  --neutral-600: #706A5C;
+  --neutral-700: #545045;
+  --neutral-800: #38352E;
+  --neutral-900: #24221E;
+  --neutral-950: #191815;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* 1. Semantic UI tokens */
+  --bg: #1A1815;
+  --surface: #242019;
+  --surface-raised: #2E2921;
+  --border: #3A342B;
+  --text: #F2ECDD;
+  --text-muted: #A39C8C;
+  --text-faint: #6E685B;
+
+  /* Status — destructive */
+  --destructive: #9E4A3E;
+
+  /* 2. UI accents */
+  --accent-primary: #C98BA8;
+  --accent-primary-ink: #1A1815;
+  --accent-yellow: #C7AE58;
+  --accent-blue: #8FA3C6;
+  --accent-green: #8A8C54;
+
+  /* 3. Extended accent wheel */
+  --accent-rose: #C16788;
+  --accent-coral: #C17967;
+  --accent-amber: #C1A067;
+  --accent-yellow-wheel: #C1B267;
+  --accent-citron: #AFC167;
+  --accent-green-wheel: #6AC167;
+  --accent-teal: #67C1AF;
+  --accent-cyan: #67ADC1;
+  --accent-blue-wheel: #678BC1;
+  --accent-indigo: #7367C1;
+  --accent-violet: #9D67C1;
+  --accent-magenta: #C167AF;
+
+  /* 4. Warm neutral ramp is theme-independent — inherited from :root. */
+}

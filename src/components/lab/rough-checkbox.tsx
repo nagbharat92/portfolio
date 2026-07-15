@@ -21,8 +21,8 @@ export function RoughCheckbox({ label, checked, onChange, seed = 91 }: RoughChec
   const box = useMemo(
     () =>
       roughPathInfos(rectPath(INSET, INSET, SIZE - INSET * 2, SIZE - INSET * 2), {
-        roughness: 1.1,
-        bowing: 1,
+        roughness: 0.5,
+        bowing: 0,
         strokeWidth: STROKE_WIDTH,
         seed,
         fill: "none",

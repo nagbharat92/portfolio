@@ -13,20 +13,17 @@
       rel="stylesheet"
     />
     <!-- Browser UI / toolbar tint (Dia, Safari, Chrome). Kept in sync with the
-         page background (--background): #f2f2f2 light, #0a0a0a dark. -->
-    <meta name="theme-color" content="#0a0a0a" />
+         page background (--bg): #FCFAF3 light, #1A1815 dark. -->
+    <meta name="theme-color" content="#FCFAF3" />
     <script>
-      // Sync .dark class + theme-color with system preference before first paint
+      // Seed the manual data-theme attribute + theme-color once, before first
+      // paint, from the OS preference. After mount the app owns it (manual
+      // toggle drives [data-theme] — see src/App.tsx and src/tokens.css).
       (function () {
-        var mq = window.matchMedia('(prefers-color-scheme: dark)');
-        function apply(e) {
-          var isDark = e.matches;
-          document.documentElement.classList.toggle('dark', isDark);
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute('content', isDark ? '#0a0a0a' : '#f2f2f2');
-        }
-        apply(mq);
-        mq.addEventListener('change', apply);
+        var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', isDark ? '#1A1815' : '#FCFAF3');
       })();
     </script>
   </head>
@@ -34,7 +31,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!-- Fallback content shown before React mounts -->
-    <div id="loading" style="display:none; text-align:center; padding:4rem; font-family:system-ui,sans-serif; color:#888;">
+    <div id="loading" style="display:none; text-align:center; padding:4rem; font-family:system-ui,sans-serif; color:#8A857A;">
       <p>Loading...</p>
     </div>
     <script type="module" src="/src/main.tsx"></script>

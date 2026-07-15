@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react"
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react"
 import type { KeyboardEvent, PointerEvent } from "react"
 import { STROKE_WIDTH, circlePaths, linePaths } from "@/components/lab/rough"
 
@@ -19,8 +19,7 @@ interface RoughSliderProps {
 
 const HEIGHT = 40
 const CY = HEIGHT / 2
-const PAD = 16 // track inset — keeps the thumb clear of the ends
-const TRACK_X1 = PAD
+const TRACK_X1 = 0 // track spans the full width so its ends align with the label row
 const THUMB_R = 9
 
 /** Measure an element's width, updating on resize so the track fills its cell. */
@@ -67,8 +66,10 @@ export function RoughSlider({
   const [trackRef, w] = useTrackWidth<HTMLDivElement>()
   const [dragging, setDragging] = useState(false)
   const [focused, setFocused] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const clipId = `slider-fill-${useId().replace(/:/g, "")}`
 
-  const trackX2 = Math.max(TRACK_X1 + 1, w - PAD)
+  const trackX2 = Math.max(TRACK_X1 + 1, w)
   const track = useMemo(() => linePaths(TRACK_X1, CY, trackX2, CY, seed), [seed, trackX2])
   const thumb = useMemo(() => circlePaths(0, 0, THUMB_R * 2, seed + 1), [seed])
   const ring = useMemo(() => circlePaths(0, 0, (THUMB_R + 4) * 2, seed + 2), [seed])
@@ -78,14 +79,20 @@ export function RoughSlider({
     return parseFloat(clamp(stepped, min, max).toFixed(4))
   }
 
+  // Rail spans the full width (TRACK_X1..trackX2 = the label row), but the THUMB
+  // travels inset by its radius so its EDGE — not its centre — lands on the ends:
+  // the knob stops flush with the text instead of overshooting past it.
+  const thumbMinX = TRACK_X1 + THUMB_R
+  const thumbMaxX = Math.max(thumbMinX + 1, trackX2 - THUMB_R)
+
   const fraction = (value - min) / (max - min)
-  const thumbX = TRACK_X1 + fraction * (trackX2 - TRACK_X1)
+  const thumbX = thumbMinX + fraction * (thumbMaxX - thumbMinX)
 
   const setFromClientX = (clientX: number) => {
     const el = trackRef.current
     if (!el) return
     const rect = el.getBoundingClientRect()
-    const frac = clamp((clientX - rect.left - TRACK_X1) / (trackX2 - TRACK_X1), 0, 1)
+    const frac = clamp((clientX - rect.left - thumbMinX) / (thumbMaxX - thumbMinX), 0, 1)
     onChange(snap(min + frac * (max - min)))
   }
 
@@ -166,6 +173,8 @@ export function RoughSlider({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerEnter={() => setHovered(true)}
+        onPointerLeave={() => setHovered(false)}
         onKeyDown={handleKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
@@ -180,13 +189,35 @@ export function RoughSlider({
           viewBox={`0 0 ${w || 1} ${HEIGHT}`}
           className="block overflow-visible text-foreground"
         >
-          {/* Track */}
+          <defs>
+            <clipPath id={clipId}>
+              <rect x={0} y={0} width={Math.max(0, thumbX)} height={HEIGHT} />
+            </clipPath>
+          </defs>
+
+          {/* Rail — full width, thin + muted */}
           <g
             fill="none"
             stroke="currentColor"
             strokeWidth={STROKE_WIDTH}
             strokeLinecap="round"
             className="text-muted-foreground"
+          >
+            {track.map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </g>
+
+          {/* Fill — the portion left of the thumb: thicker + darker than the rail.
+              Reuses the rail's rough path, revealed up to the thumb via a clip, so
+              it never re-wobbles as the value changes. */}
+          <g
+            clipPath={`url(#${clipId})`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={STROKE_WIDTH + 1}
+            strokeLinecap="round"
+            className="text-foreground"
           >
             {track.map((d, i) => (
               <path key={i} d={d} />
@@ -207,8 +238,15 @@ export function RoughSlider({
                 <path key={i} d={d} />
               ))}
             </g>
-            {/* Solid knob fill masks the track passing behind it */}
-            <circle r={THUMB_R} style={{ fill: "var(--color-background)" }} />
+            {/* Knob base — solid surface fill masks the rail/fill passing behind it.
+                Uses the inherited --lab-surface (card bg) so it matches its panel. */}
+            <circle r={THUMB_R} style={{ fill: "var(--lab-surface, var(--color-background))" }} />
+            {/* Knob tint — fills with ink on hover, fully on press */}
+            <circle
+              r={THUMB_R}
+              className="transition-opacity duration-150"
+              style={{ fill: "var(--color-foreground)", opacity: dragging ? 1 : hovered ? 0.7 : 0 }}
+            />
             <g fill="none" stroke="currentColor" strokeWidth={STROKE_WIDTH} strokeLinecap="round">
               {thumb.map((d, i) => (
                 <path key={i} d={d} />
