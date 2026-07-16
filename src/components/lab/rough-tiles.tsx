@@ -1,6 +1,7 @@
 import { useMemo } from "react"
 import {
   FILL_STYLES,
+  ROUGH_OPTIONS,
   rectPath,
   roughPathInfos,
   type FillStyle,
@@ -90,9 +91,7 @@ export function RoughSwatches({ value, onChange }: RoughSwatchesProps) {
       roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
         fill: "none",
         stroke: "currentColor",
-        roughness: 0.5,
-        bowing: 0,
-        strokeWidth: 1,
+        ...ROUGH_OPTIONS,
         seed: 39,
       }),
     [],
@@ -104,9 +103,7 @@ export function RoughSwatches({ value, onChange }: RoughSwatchesProps) {
           fill: s.color,
           fillStyle: "solid",
           stroke: "currentColor",
-          roughness: 0.5,
-          bowing: 0,
-          strokeWidth: 1,
+          ...ROUGH_OPTIONS,
           seed: 40 + i,
         }),
       ),
@@ -144,9 +141,7 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
       roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
         fill: "none",
         stroke: "currentColor",
-        roughness: 0.5,
-        bowing: 0,
-        strokeWidth: 1,
+        ...ROUGH_OPTIONS,
         seed: 59,
       }),
     [],
@@ -157,9 +152,7 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
         const outline = roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
           fill: "none",
           stroke: "currentColor",
-          roughness: 0.5,
-          bowing: 0,
-          strokeWidth: 1,
+          ...ROUGH_OPTIONS,
           seed: 60 + i,
         })
         const pattern = roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
@@ -167,8 +160,7 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
           fillStyle: style,
           hachureGap: 3.5,
           fillWeight: 1,
-          roughness: 0.5,
-          bowing: 0,
+          ...ROUGH_OPTIONS,
           stroke: "none",
           seed: 61 + i,
         })

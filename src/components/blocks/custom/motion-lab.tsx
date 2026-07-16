@@ -6,6 +6,7 @@ import { CornerFrame } from "@/components/ui/corner-frame"
 import { RoughSlider } from "@/components/lab/rough-slider"
 import { RoughCheckbox } from "@/components/lab/rough-checkbox"
 import { roughPathInfos, roundedPolygonPath } from "@/components/lab/rough"
+import { INK } from "@/lib/ink"
 
 interface MotionLabProps {
   index: number
@@ -68,6 +69,10 @@ function shapeRoughPaths(
     bowing,
     strokeWidth,
     seed,
+    // Non-exposed knobs come from the site-wide token so the default ink matches
+    // the folder lab (preserveVertices keeps the corners crisp; no corner overshoot).
+    disableMultiStroke: INK.disableMultiStroke,
+    preserveVertices: INK.preserveVertices,
     stroke: "currentColor",
     ...(fill
       ? {
@@ -130,6 +135,7 @@ function BoilingShape({
           stroke={p.stroke}
           fill={p.fill && p.fill !== "none" ? p.fill : "none"}
           strokeWidth={p.strokeWidth}
+          vectorEffect="non-scaling-stroke"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -188,14 +194,14 @@ function ResetButton({ onReset }: { onReset: () => void }) {
  * DEFAULTS pattern in folder-lab.tsx / type-lab.tsx / color-lab.tsx.)
  */
 const DEFAULTS = {
-  interval: 0.6, // seconds each seed is held before the next
-  frames: 4, // number of seeds in the loop
+  interval: 0.2, // seconds each seed is held before the next
+  frames: 8, // number of seeds in the loop
   loop: true, // true = cycle N fixed seeds; false = a new random seed forever
   crossfade: false, // hard cut vs. soft dissolve between frames
   fill: false, // hachure "scribble" fill that boils with the outline
-  roughness: 1.4,
-  bowing: 1.5,
-  strokeWidth: 2,
+  roughness: INK.roughness,
+  bowing: INK.bowing,
+  strokeWidth: INK.strokeWidth,
 }
 
 const BASE_SEED = 1

@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { STROKE_WIDTH, linePaths, rectPath, roughPathInfos } from "@/components/lab/rough"
+import { ROUGH_OPTIONS, STROKE_WIDTH, linePaths, rectPath, roughPathInfos } from "@/components/lab/rough"
 
 const SIZE = 22
 const INSET = 3
@@ -21,9 +21,7 @@ export function RoughCheckbox({ label, checked, onChange, seed = 91 }: RoughChec
   const box = useMemo(
     () =>
       roughPathInfos(rectPath(INSET, INSET, SIZE - INSET * 2, SIZE - INSET * 2), {
-        roughness: 0.5,
-        bowing: 0,
-        strokeWidth: STROKE_WIDTH,
+        ...ROUGH_OPTIONS,
         seed,
         fill: "none",
       }).map((p) => p.d),

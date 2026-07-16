@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type { CSSProperties, ReactNode } from "react"
 import { RotateCcw } from "lucide-react"
 import { FadeInUp } from "@/components/ui/fade-in-up"
@@ -7,6 +7,8 @@ import { CornerFrame } from "@/components/ui/corner-frame"
 import { RoughBox } from "@/components/ui/rough-ink"
 import { RoughSlider } from "@/components/lab/rough-slider"
 import { RoughCheckbox } from "@/components/lab/rough-checkbox"
+import { FontCombobox } from "@/components/lab/font-combobox"
+import { GOOGLE_FONTS } from "@/data/google-fonts"
 import { cn } from "@/lib/utils"
 
 interface TypeLabProps {
@@ -263,65 +265,26 @@ function PairingCard({
   )
 }
 
-/** A hand-drawn text field — a borderless input inside a rough outline box. */
-function RoughField({
-  label,
-  value,
-  placeholder,
-  seed,
-  onChange,
-  onSubmit,
-}: {
-  label: string
-  value: string
-  placeholder: string
-  seed: number
-  onChange: (v: string) => void
-  onSubmit: () => void
-}) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
-      <span className="relative block text-border">
-        <input
-          type="text"
-          value={value}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault()
-              onSubmit()
-            }
-          }}
-          className="w-full rounded-lg bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:text-foreground"
-        />
-        <RoughBox seed={seed} radius={10} inset={2} className="text-border" />
-      </span>
-    </label>
-  )
-}
-
 /**
- * CustomCard — the last card in the carousel: type any two Google Fonts families
- * and apply them. Selected when the active pairing is "custom".
+ * CustomCard — the last card in the carousel: browse the ENTIRE Google Fonts
+ * library for each slot. Click a field and press ↑/↓ to cycle through every
+ * family (previewed live), or type to filter. Selected when the active pairing
+ * is "custom". Only the highlighted face is ever loaded, so browsing stays cheap.
  */
 function CustomCard({
   selected,
-  displayValue,
-  bodyValue,
+  displayFamily,
+  bodyFamily,
   seed,
   onDisplayChange,
   onBodyChange,
-  onApply,
 }: {
   selected: boolean
-  displayValue: string
-  bodyValue: string
+  displayFamily: string
+  bodyFamily: string
   seed: number
   onDisplayChange: (v: string) => void
   onBodyChange: (v: string) => void
-  onApply: () => void
 }) {
   return (
     <div
@@ -336,28 +299,25 @@ function CustomCard({
     >
       <RoughBox seed={seed} radius={16} inset={3} className={cn(selected ? "text-foreground" : "text-border")} />
       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Custom</span>
-      <RoughField
+      <FontCombobox
         label="Display font"
-        value={displayValue}
+        value={displayFamily}
         placeholder="e.g. Bricolage Grotesque"
+        fonts={GOOGLE_FONTS}
         seed={seed + 1}
         onChange={onDisplayChange}
-        onSubmit={onApply}
       />
-      <RoughField
+      <FontCombobox
         label="Body font"
-        value={bodyValue}
+        value={bodyFamily}
         placeholder="e.g. Newsreader"
+        fonts={GOOGLE_FONTS}
         seed={seed + 2}
         onChange={onBodyChange}
-        onSubmit={onApply}
       />
-      <div className="mt-auto flex items-center justify-between gap-2 pt-1">
-        <span className="text-xs text-muted-foreground">Any family on Google Fonts.</span>
-        <Button size="sm" variant="outline" onClick={onApply}>
-          Apply
-        </Button>
-      </div>
+      <p className="mt-auto pt-1 text-xs leading-relaxed text-muted-foreground">
+        Every family on Google Fonts — type to search, or press ↑↓ to browse.
+      </p>
     </div>
   )
 }
@@ -413,11 +373,9 @@ function useCarouselFade<T extends HTMLElement>() {
  */
 export function TypeLab({ index }: TypeLabProps) {
   const [pairingId, setPairingId] = useState(DEFAULTS.pairingId)
-  // Applied custom families (sanitized); the drafts are what the inputs hold.
+  // The applied custom families — the pickers browse/preview these live.
   const [customDisplay, setCustomDisplay] = useState("")
   const [customBody, setCustomBody] = useState("")
-  const [displayDraft, setDisplayDraft] = useState("")
-  const [bodyDraft, setBodyDraft] = useState("")
 
   const [bodySize, setBodySize] = useState(DEFAULTS.bodySize)
   const [lineHeight, setLineHeight] = useState(DEFAULTS.lineHeight)
@@ -433,8 +391,6 @@ export function TypeLab({ index }: TypeLabProps) {
     setPairingId(DEFAULTS.pairingId)
     setCustomDisplay("")
     setCustomBody("")
-    setDisplayDraft("")
-    setBodyDraft("")
     setBodySize(DEFAULTS.bodySize)
     setLineHeight(DEFAULTS.lineHeight)
     setMeasure(DEFAULTS.measure)
@@ -450,19 +406,29 @@ export function TypeLab({ index }: TypeLabProps) {
   }, [])
 
   // Load custom families on demand. Weights omitted (regular only) so ANY family
-  // the user types loads reliably; heavier weights faux-synthesize.
+  // loads reliably; heavier weights faux-synthesize. DEBOUNCED so rapidly cycling
+  // with the arrow keys only fetches the family you settle on, not every face in
+  // between.
   useEffect(() => {
     const specs: FontSpec[] = []
     if (customDisplay) specs.push({ family: customDisplay, weights: [] })
     if (customBody) specs.push({ family: customBody, weights: [] })
-    ensureStylesheet("type-lab-custom", buildFontsHref(specs))
+    const href = buildFontsHref(specs)
+    const t = setTimeout(() => ensureStylesheet("type-lab-custom", href), 180)
+    return () => clearTimeout(t)
   }, [customDisplay, customBody])
 
-  const applyCustom = () => {
-    setCustomDisplay(sanitizeFamily(displayDraft))
-    setCustomBody(sanitizeFamily(bodyDraft))
+  // Live setters for the two custom pickers — choosing a family previews it and
+  // switches the specimen into "custom" mode. Stable identities keep the pickers'
+  // large option lists memoised while cycling.
+  const setDisplay = useCallback((family: string) => {
+    setCustomDisplay(family)
     setPairingId("custom")
-  }
+  }, [])
+  const setBody = useCallback((family: string) => {
+    setCustomBody(family)
+    setPairingId("custom")
+  }, [])
 
   // Resolve the active pairing → the two families + the "why it works" note.
   const isCustom = pairingId === "custom"
@@ -526,12 +492,11 @@ export function TypeLab({ index }: TypeLabProps) {
             ))}
             <CustomCard
               selected={isCustom}
-              displayValue={displayDraft}
-              bodyValue={bodyDraft}
+              displayFamily={customDisplay}
+              bodyFamily={customBody}
               seed={60}
-              onDisplayChange={setDisplayDraft}
-              onBodyChange={setBodyDraft}
-              onApply={applyCustom}
+              onDisplayChange={setDisplay}
+              onBodyChange={setBody}
             />
           </div>
           {/* Edge scrims — ease in only while scrolling, on the side that still

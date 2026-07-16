@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react"
 import { RotateCcw } from "lucide-react"
 import { FadeInUp } from "@/components/ui/fade-in-up"
 import { RoughSlider } from "@/components/lab/rough-slider"
-import { rectPath, roughPathInfos } from "@/components/lab/rough"
+import { ROUGH_OPTIONS, rectPath, roughPathInfos } from "@/components/lab/rough"
 import { cn } from "@/lib/utils"
 
 interface ColorLabProps {
@@ -179,9 +179,7 @@ function BaseSwatch({
         fill: color,
         fillStyle: "solid",
         stroke: "currentColor",
-        roughness: 0.5,
-        bowing: 0,
-        strokeWidth: 1,
+        ...ROUGH_OPTIONS,
         seed,
       }),
     [color, seed],

@@ -166,15 +166,18 @@ export function FolderTree() {
 
   return (
     <ul className="flex flex-col gap-0.5">
-      {sidebarData.map((node) => (
-        <FolderItem
-          key={node.id}
-          node={node}
-          depth={0}
-          selectedId={selectedId}
-          select={selectAndClose}
-        />
-      ))}
+      {/* 'home' is surfaced by the sidebar header "Home" control, not the tree. */}
+      {sidebarData
+        .filter((node) => node.id !== 'home')
+        .map((node) => (
+          <FolderItem
+            key={node.id}
+            node={node}
+            depth={0}
+            selectedId={selectedId}
+            select={selectAndClose}
+          />
+        ))}
     </ul>
   )
 }

@@ -7,6 +7,7 @@ import { LabStage } from "@/components/lab/lab-stage"
 import { RoughSlider } from "@/components/lab/rough-slider"
 import { RoughCheckbox } from "@/components/lab/rough-checkbox"
 import { RoughSwatches, SWATCHES } from "@/components/lab/rough-tiles"
+import { INK } from "@/lib/ink"
 
 interface FolderLabProps {
   index: number
@@ -59,12 +60,12 @@ const DEFAULTS = {
   tabWidth: 0,
   tabHeight: 0,
   cornerRadius: 8,
-  roughness: 0.5,
-  bowing: 0,
-  strokeWidth: 1,
+  roughness: INK.roughness,
+  bowing: INK.bowing,
+  strokeWidth: INK.strokeWidth,
   seed: 7,
-  singleStroke: false,
-  preserveVertices: true,
+  singleStroke: INK.disableMultiStroke,
+  preserveVertices: INK.preserveVertices,
   lift: 0,
   tilt: 30,
   perspective: 840,

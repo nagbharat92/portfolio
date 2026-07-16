@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react"
 import rough from "roughjs"
 import { cn } from "@/lib/utils"
+import { INK } from "@/lib/ink"
 
 /**
  * Hand-drawn ink primitives (roughjs) for the site's sketchy line-art vibe:
@@ -12,15 +13,15 @@ import { cn } from "@/lib/utils"
  *   measure their element with a ResizeObserver and draw at REAL pixel coordinates,
  *   so the ink keeps a constant weight at any size. The rough path is memoised on
  *   [size, seed, …], so it only regenerates when the element actually resizes — it
- *   never re-roughens on hover, re-render, or theme change (matches RoughFolder).
+ *   never re-roughens on hover, re-render, or theme change.
  *
  * Ink colour is `currentColor`, so callers set it with a text-* class (e.g.
  * `text-border`) and it stays theme-aware. Both are decorative (aria-hidden).
  */
 
-/** Shared roughjs options — calmer than the folders so long rules don't over-wave. */
-const LINE_OPTIONS = { roughness: 1, bowing: 0.6, strokeWidth: 1.4 } as const
-const BOX_OPTIONS = { roughness: 1.05, bowing: 0.85, strokeWidth: 1.6 } as const
+/** Both rules and boxes draw with the site-wide global ink (see @/lib/ink). */
+const LINE_OPTIONS = INK
+const BOX_OPTIONS = INK
 
 /** Measure an element's content box; updates on resize (ResizeObserver). */
 function useElementSize<T extends HTMLElement>() {

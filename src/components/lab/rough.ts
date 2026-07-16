@@ -1,24 +1,20 @@
 import rough from "roughjs"
+import { INK } from "@/lib/ink"
 
 /**
- * Shared hand-drawn ("squiggly") ink settings + geometry for all Folder Lab UI.
+ * Shared hand-drawn ("squiggly") ink settings + geometry for all lab UI.
  *
- * Every lab control (slider, divider, …) is drawn with roughjs using THESE
- * options, so the whole toolkit shares one look — the Folder Lab's default ink
- * (roughness 0.5 / bowing 0 / stroke 1). When we build more controls, reuse
- * these helpers so they stay visually consistent.
+ * Every lab control (slider, divider, checkbox, tiles, …) draws with the ONE
+ * site-wide ink token (@/lib/ink), so the lab chrome matches the rest of the
+ * site and there is a single place to tune every stroke. When we build more
+ * controls, reuse these helpers so they stay visually consistent.
  *
  * DETERMINISTIC: shapes are generated once from a fixed integer `seed`, so a
  * control's sketch never re-wobbles as its value changes. Moving parts (e.g. a
  * slider thumb) are drawn at the origin and repositioned with an SVG transform
  * rather than re-generated.
  */
-export const ROUGH_OPTIONS = {
-  roughness: 0.5,
-  bowing: 0,
-  strokeWidth: 1,
-  preserveVertices: false,
-} as const
+export const ROUGH_OPTIONS = INK
 
 /** Ink stroke width shared by every lab control. */
 export const STROKE_WIDTH = ROUGH_OPTIONS.strokeWidth

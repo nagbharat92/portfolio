@@ -32,7 +32,7 @@
  *   Add a FolderNode at the top level of sidebarData.
  */
 
-import { UserRound, type LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 import { contentTree } from 'virtual:content-pages'
 
 // ─── Block types ──────────────────────────────────────────────────────────────
@@ -167,11 +167,13 @@ export type SidebarNode = FolderNode | PageNode
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 export const sidebarData: SidebarNode[] = [
+  // The merged landing page — the site's front door. Reached via the "Home"
+  // control in the sidebar header (not rendered as a tree item). Holds the
+  // personal-intro content (hero + bio + social links).
   {
-    id: 'about-bharat-nag',
+    id: 'home',
     type: 'page',
-    name: 'About Bharat',
-    icon: UserRound,
+    name: 'Home',
     blocks: [
       {
         type: 'custom',
