@@ -51,7 +51,8 @@ export function ProjectCanvas({ page }: ProjectCanvasProps) {
                 block.componentId === 'motion-lab' ||
                 block.componentId === 'flower-lab' ||
                 block.componentId === 'ambience-lab' ||
-                block.componentId === 'controls-lab'))
+                block.componentId === 'controls-lab' ||
+                block.componentId === 'text-boil'))
             const isStats = block.type === 'stats'
             const isTitleBlock = i === titleBlockIndex
 

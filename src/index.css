@@ -92,6 +92,36 @@
 }
 
 /* =============================================================================
+   INK BOIL — links wobble like hand-drawn ink on hover / focus (site-wide).
+
+   FRAMEWORK layer. The one animating SVG filter def lives in <InkBoilFilter/>
+   (rendered once in App.tsx); its params come from the TEXT_BOIL token
+   (src/lib/text-boil.ts), tuned in the Wobble lab (#/text-boil). Because it
+   warps rendered pixels, it works on any typeface and the text stays real
+   (selectable / accessible).
+
+   Every <a> gets the boil for FREE. Non-anchor "links" (sidebar nav buttons,
+   the Home button, footer action buttons) opt in with a class:
+     • .ink-boil                     — self-hover/focus boils this element's text
+     • .ink-boil-parent + .ink-boil  — the parent's hover/focus boils only the
+       tagged child, so a nav item's LABEL wobbles while its icon stays crisp.
+
+   Gated to real-hover, motion-OK environments so touch and prefers-reduced-
+   motion users get plain, crisp links. The `#site-ink-boil` id must match
+   TEXT_BOIL_FILTER_ID in src/lib/text-boil.ts.
+   ============================================================================= */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  a:hover,
+  a:focus-visible,
+  .ink-boil:hover,
+  .ink-boil:focus-visible,
+  .ink-boil-parent:hover .ink-boil,
+  .ink-boil-parent:focus-visible .ink-boil {
+    filter: url(#site-ink-boil);
+  }
+}
+
+/* =============================================================================
    COLOUR PALETTE
    The raw palette AND the semantic colour roles now live in src/tokens.css
    (warm cream/pastel system), imported at the top of this file. The

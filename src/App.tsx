@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { SidebarProvider, useSidebar } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
 import { RoughMenuButton } from '@/components/ui/rough-menu-button'
+import { InkBoilFilter } from '@/components/ui/ink-boil'
 import { FolderTreeProvider } from '@/components/folder-tree'
 import { Canvas } from '@/components/canvas'
 import { cn } from '@/lib/utils'
@@ -33,6 +34,10 @@ function App() {
 
   return (
     <FolderTreeProvider>
+      {/* One global, always-animating SVG filter that every link references on
+          hover (see the INK BOIL block in index.css). Rendered once here so the
+          hand-drawn "boil" comes for free to any <a> site-wide. */}
+      <InkBoilFilter />
       <AppLayout setDark={setDark} />
     </FolderTreeProvider>
   )

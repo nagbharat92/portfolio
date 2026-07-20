@@ -74,7 +74,7 @@ function FolderItem({
       <button
         onClick={() => select(node.id)}
         className={cn(
-          "flex w-full items-center gap-(--tree-item-gap) rounded-md px-(--tree-item-px) py-(--tree-item-py) text-sm text-sidebar-foreground",
+          "ink-boil-parent flex w-full items-center gap-(--tree-item-gap) rounded-md px-(--tree-item-px) py-(--tree-item-py) text-sm text-sidebar-foreground",
           "transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
           "outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
           "cursor-pointer",
@@ -83,7 +83,7 @@ function FolderItem({
         style={indentStyle}
       >
         <PageIcon className="size-4 shrink-0 text-sidebar-foreground/70" />
-        <span className="truncate">{node.name}</span>
+        <span className="ink-boil truncate">{node.name}</span>
       </button>
     </li>
   )

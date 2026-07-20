@@ -12,7 +12,7 @@ import { RoughBox } from "@/components/ui/rough-ink"
 import { cn } from "@/lib/utils"
 
 const EMAIL = "nagbharat92@gmail.com"
-const linkClasses = "font-bold text-sidebar-foreground underline-offset-4 hover:underline inline-flex items-baseline gap-1"
+const linkClasses = "ink-boil font-bold text-sidebar-foreground underline-offset-4 hover:underline inline-flex items-baseline gap-1"
 
 export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean) => void }) {
   const { selectedId } = useFolderTree()
@@ -85,12 +85,12 @@ export function AppSidebar({ setDark }: { setDark: (fn: (d: boolean) => boolean)
         <button
           onClick={() => navigate('home')}
           className={cn(
-            "flex w-full items-center gap-(--tree-item-gap) rounded-md px-(--tree-item-px) py-(--tree-item-py) text-sm font-medium text-sidebar-foreground transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring cursor-pointer",
+            "ink-boil-parent flex w-full items-center gap-(--tree-item-gap) rounded-md px-(--tree-item-px) py-(--tree-item-py) text-sm font-medium text-sidebar-foreground transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring cursor-pointer",
             selectedId === 'home' && "bg-sidebar-accent text-sidebar-accent-foreground",
           )}
         >
           <House className="size-4 shrink-0 text-sidebar-foreground/70" />
-          <span>Home</span>
+          <span className="ink-boil">Home</span>
         </button>
       </SidebarHeader>
 
