@@ -150,19 +150,36 @@ export function useFolderTree() {
   return ctx
 }
 
+// ─── useSidebarNavigate ─────────────────────────────────────────────────────────
+
+/**
+ * The single navigation entry point for EVERY sidebar control — the tree pages
+ * and the "Home" header button alike. It selects the page and, on mobile, also
+ * dismisses the sidebar sheet.
+ *
+ * Any new navigation affordance (a future header link, a footer shortcut, etc.)
+ * should call this hook instead of the raw `select`, so the close-on-navigate
+ * behaviour never has to be re-wired per control. Must be used inside
+ * <SidebarProvider> (all sidebar controls are).
+ */
+export function useSidebarNavigate() {
+  const { select } = useFolderTree()
+  const { setOpen } = useSidebar()
+
+  return useCallback(
+    (id: string) => {
+      select(id)
+      setOpen(false)
+    },
+    [select, setOpen]
+  )
+}
+
 // ─── FolderTree ───────────────────────────────────────────────────────────────
 
 export function FolderTree() {
-  const { selectedId, select } = useFolderTree()
-  const { isMobile, setOpenMobile } = useSidebar()
-
-  const selectAndClose = useCallback(
-    (id: string) => {
-      select(id)
-      if (isMobile) setOpenMobile(false)
-    },
-    [select, isMobile, setOpenMobile]
-  )
+  const { selectedId } = useFolderTree()
+  const navigate = useSidebarNavigate()
 
   return (
     <ul className="flex flex-col gap-0.5">
@@ -175,7 +192,7 @@ export function FolderTree() {
             node={node}
             depth={0}
             selectedId={selectedId}
-            select={selectAndClose}
+            select={navigate}
           />
         ))}
     </ul>

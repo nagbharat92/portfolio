@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarProvider, useSidebar } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/app-sidebar'
+import { RoughMenuButton } from '@/components/ui/rough-menu-button'
 import { FolderTreeProvider } from '@/components/folder-tree'
 import { Canvas } from '@/components/canvas'
+import { cn } from '@/lib/utils'
 import {
   Tooltip,
   TooltipContent,
@@ -48,17 +50,7 @@ function AppLayout({ setDark }: { setDark: (fn: (d: boolean) => boolean) => void
       <AppSidebar setDark={setDark} />
 
       <div className="relative flex flex-1 min-h-0">
-        {/* Mobile sidebar trigger — absolutely positioned, visible only below lg */}
-        <div className="absolute top-(--page-inset) left-(--page-inset) z-10 flex items-center lg:hidden">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SidebarTrigger variant="filled" />
-            </TooltipTrigger>
-            <TooltipContent side="bottom">
-              <p>Explore</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        <MenuButton />
 
         {/* Canvas — full bleed, scrolls independently */}
         <main className="flex-1 min-h-0">
@@ -66,6 +58,35 @@ function AppLayout({ setDark }: { setDark: (fn: (d: boolean) => boolean) => void
         </main>
       </div>
     </SidebarProvider>
+  )
+}
+
+/**
+ * MenuButton — the hamburger trigger, fixed top-left at every breakpoint. It
+ * fades out while the drawer is open (matching the drawer's own timing: 500ms
+ * out as the drawer opens, 300ms back in as it closes) so the two never overlap.
+ * z-20 keeps it above sticky page content (e.g. the Strokes preview stage, z-10).
+ */
+function MenuButton() {
+  const { open } = useSidebar()
+  return (
+    <div
+      className={cn(
+        'absolute top-(--page-inset) left-(--page-inset) z-20 flex items-center transition-opacity ease-in-out',
+        open
+          ? 'pointer-events-none opacity-0 duration-500'
+          : 'opacity-100 duration-300'
+      )}
+    >
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <RoughMenuButton />
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Explore</p>
+        </TooltipContent>
+      </Tooltip>
+    </div>
   )
 }
 

@@ -196,18 +196,13 @@
   --space-16:   4rem;      /* 64px */
 
   /* ── Layout ───────────────────────────────────────────────────────────────
-     Page-level geometry: outer inset, sidebar↔content gap. */
+     Page-level geometry: outer inset. */
   --page-inset: var(--space-6);         /* Mobile: 24px outer margin         */
-  --layout-gap: var(--page-inset);      /* Sidebar↔content gap = page inset  */
-
-  /* Sidebar width — fluid between a min and max on desktop; collapses to an
-     off-canvas sheet (SIDEBAR_WIDTH_MOBILE in sidebar.tsx) below lg (1024px). */
-  --sidebar-width: clamp(17.5rem, 22vw, 22.5rem);  /* 280px → 360px */
 
   /* ── Content column ───────────────────────────────────────────────────────
      Horizontal and vertical padding of the scrollable content area. */
   --content-px:        var(--space-6);  /* 24px horizontal padding           */
-  --content-pt:        5rem;            /* 80px top padding (mobile)         */
+  --content-pt:        calc(var(--page-inset) + 3.5rem); /* clear the menu button: page-inset (button top) + 40px button + 16px gap → 80px mobile / 96px desktop */
   --content-pt-home:   7.5rem;          /* 120px top padding — home page     */
   --content-py:        7.5rem;          /* 120px vertical padding (mobile)   */
   --content-py-mobile: 7.5rem;          /* 120px vertical padding (mobile)   */
@@ -270,7 +265,7 @@
   :root {
     --page-inset: var(--space-10);        /* 40px outer margin               */
     --content-px: var(--page-inset);      /* match outer margin (40px)       */
-    --content-pt: var(--page-inset);      /* match toolbar inset (40px)      */
+    /* --content-pt inherits the :root calc → 96px here (clears the 40px-inset menu button) */
     --content-pt-home: 7.5rem;            /* 120px top padding — home page    */
     --content-py: 12.5rem;                /* 200px vertical padding          */
   }
@@ -428,20 +423,81 @@ button:not([data-animating]):hover .typewriter-text {
   animation-delay: calc(var(--i) * var(--stagger-base) + var(--i) * (var(--i) - 1) / 2 * var(--stagger-growth));
 }
 
-/* Sidebar entrance — fades and slides in from the left when the shell mounts. */
-@keyframes sidebar-in {
-  from {
-    opacity: 0;
-    transform: translateX(-1.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Selected-swatch bloom — rotates slowly and endlessly to signal selection
+   (Bloom lab, src/components/blocks/custom/flower-lab.tsx). */
+@keyframes bloom-spin {
+  to { transform: rotate(360deg); }
 }
 
-.animate-sidebar-in {
-  animation: sidebar-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+.animate-bloom-spin {
+  transform-origin: 50% 50%;
+  animation: bloom-spin 16s linear infinite;
+}
+
+/* =============================================================================
+   DRAWER SCRIM — the sidebar drawer's modal backdrop.
+   A dark tint (no blur) that is strongest at the LEFT (behind / just past the
+   drawer) and fades out to the right via a mask, so content on the right stays
+   clear/readable. The pixel stops are anchored to the drawer (24px inset + 320px
+   wide ⇒ right edge ~344px), so the fall-off sits just past it.
+   ============================================================================= */
+.drawer-scrim {
+  background-color: rgb(0 0 0 / 0.26);
+  -webkit-mask-image: linear-gradient(to right, black, black 344px, transparent 760px);
+  mask-image: linear-gradient(to right, black, black 344px, transparent 760px);
+}
+
+/* =============================================================================
+   MOBILE MENU — hand-drawn "ink stamp" trigger
+   (src/components/ui/rough-menu-button.tsx)
+   A high-contrast foreground-ink stamp with a sketchy hamburger drawn from real
+   roughjs strokes. On hover/focus the three bars BOIL (seed advances on the
+   shared cadence — handled in JS via useBoilSeed, like every other animated
+   stroke on the site) AND the top/bottom bars SPLAY OPEN (the CSS transform
+   below); the whole stamp presses in on tap. Honours reduced-motion (the boil
+   hook no-ops; the transforms are disabled below).
+   ============================================================================= */
+.rough-menu {
+  transition: transform var(--duration-base) var(--ease-spring);
+}
+.rough-menu:active {
+  transform: scale(0.93);
+}
+.rough-menu__bar {
+  transform-origin: center;
+  transition: transform var(--duration-base) var(--ease-spring);
+}
+.rough-menu:hover .rough-menu__bar--top,
+.rough-menu:focus-visible .rough-menu__bar--top,
+.rough-menu:active .rough-menu__bar--top,
+.rough-menu.is-splayed .rough-menu__bar--top {
+  transform: translateY(-2.5px) rotate(-9deg);
+}
+.rough-menu:hover .rough-menu__bar--bot,
+.rough-menu:focus-visible .rough-menu__bar--bot,
+.rough-menu:active .rough-menu__bar--bot,
+.rough-menu.is-splayed .rough-menu__bar--bot {
+  transform: translateY(2.5px) rotate(9deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rough-menu,
+  .rough-menu__bar {
+    transition: none;
+  }
+  .rough-menu:active {
+    transform: none;
+  }
+  .rough-menu:hover .rough-menu__bar--top,
+  .rough-menu:focus-visible .rough-menu__bar--top,
+  .rough-menu:active .rough-menu__bar--top,
+  .rough-menu.is-splayed .rough-menu__bar--top,
+  .rough-menu:hover .rough-menu__bar--bot,
+  .rough-menu:focus-visible .rough-menu__bar--bot,
+  .rough-menu:active .rough-menu__bar--bot,
+  .rough-menu.is-splayed .rough-menu__bar--bot {
+    transform: none;
+  }
 }
 
 /* =============================================================================
@@ -545,6 +601,9 @@ button:not([data-animating]):hover .typewriter-text {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .animate-bloom-spin {
+    animation: none;
+  }
   .lab-folder__icon,
   .lab-folder__front,
   .lab-folder__back {

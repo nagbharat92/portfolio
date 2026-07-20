@@ -261,7 +261,7 @@ export function FontCombobox({ label, value, placeholder, fonts, seed, onChange 
           onKeyDown={onKeyDown}
           className="w-full rounded-lg bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus-visible:text-foreground"
         />
-        <RoughBox seed={seed} radius={10} inset={2} className="text-border" />
+        <RoughBox seed={seed} inset={2} className="text-border" />
       </span>
 
       {open &&

@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { CSSProperties } from "react"
 import { roughPathInfos, roundedPolygonPath } from "@/components/lab/rough"
 
@@ -65,6 +65,15 @@ const frontPathFor = (w: number, h: number, r: number) => roundedPolygonPath(fro
 // the viewBox + icon box grow upward by this so a tall tab never clips.
 const topPadFor = (th: number) => Math.max(0, th - (TAB_TOP - TAB_HEADROOM))
 
+// ── Hover "boil" cadence ──────────────────────────────────────────────────────
+// On hover the folder's roughjs seed advances on a timer so every stroke
+// re-wobbles frame-to-frame (the "boil" of hand-drawn animation). These mirror
+// the Motion lab's default values (motion-lab.tsx DEFAULTS: interval 0.2s, 8
+// looped frames) — hardcoded and kept in sync by hand to avoid coupling the two
+// modules. Loop mode cycles BOIL_FRAMES fixed seed offsets (0…N-1) and repeats.
+const BOIL_INTERVAL = 0.2 // seconds each seed is held before the next
+const BOIL_FRAMES = 8 // number of seeds in the loop
+
 export interface LabFolderConfig {
   seed: number
   widthExtend: number
@@ -125,6 +134,27 @@ export function LabFolder({ config, label }: LabFolderProps) {
     fillBowing,
   } = config
 
+  // While hovered, advance the roughjs seed so the strokes "boil" (see BOIL_*
+  // above). At rest the offset is 0, so the folder is identical to its static
+  // drawing — the animation runs ONLY on hover.
+  const [hovering, setHovering] = useState(false)
+  const [boilFrame, setBoilFrame] = useState(0)
+
+  useEffect(() => {
+    if (!hovering) return
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+    let frame = 0
+    const id = window.setInterval(() => {
+      frame = (frame + 1) % BOIL_FRAMES
+      setBoilFrame(frame)
+    }, Math.max(60, Math.round(BOIL_INTERVAL * 1000)))
+    return () => window.clearInterval(id)
+  }, [hovering])
+
+  // The seed that drives the geometry: the configured base seed plus the current
+  // boil frame (0 at rest, cycling 0…BOIL_FRAMES-1 while hovered).
+  const boilSeed = seed + boilFrame
+
   const back = useMemo(
     () =>
       roughPathInfos(backPathFor(w, h, tw, th, cornerRadius), {
@@ -133,10 +163,10 @@ export function LabFolder({ config, label }: LabFolderProps) {
         strokeWidth,
         disableMultiStroke,
         preserveVertices,
-        seed,
+        seed: boilSeed,
         fill: "none",
       }).map((p) => p.d),
-    [w, h, tw, th, cornerRadius, roughness, bowing, strokeWidth, disableMultiStroke, preserveVertices, seed],
+    [w, h, tw, th, cornerRadius, roughness, bowing, strokeWidth, disableMultiStroke, preserveVertices, boilSeed],
   )
 
   const front = useMemo(
@@ -147,10 +177,10 @@ export function LabFolder({ config, label }: LabFolderProps) {
         strokeWidth,
         disableMultiStroke,
         preserveVertices,
-        seed: seed + 1,
+        seed: boilSeed + 1,
         fill: "none",
       }).map((p) => p.d),
-    [w, h, cornerRadius, roughness, bowing, strokeWidth, disableMultiStroke, preserveVertices, seed],
+    [w, h, cornerRadius, roughness, bowing, strokeWidth, disableMultiStroke, preserveVertices, boilSeed],
   )
 
   // Solid "full fill" of the BACK leaf (body + tab). It sits behind the opaque
@@ -162,13 +192,13 @@ export function LabFolder({ config, label }: LabFolderProps) {
         ? roughPathInfos(backPathFor(w, h, tw, th, cornerRadius), {
             roughness: fillRoughness,
             bowing: fillBowing,
-            seed: seed + 2,
+            seed: boilSeed + 2,
             fill: fillColor,
             fillStyle: "solid",
             stroke: "none",
           })
         : [],
-    [fillEnabled, w, h, tw, th, cornerRadius, fillRoughness, fillBowing, seed, fillColor],
+    [fillEnabled, w, h, tw, th, cornerRadius, fillRoughness, fillBowing, boilSeed, fillColor],
   )
 
   // The tab can grow taller than the original headroom above it; when it does,
@@ -197,7 +227,17 @@ export function LabFolder({ config, label }: LabFolderProps) {
   const stroke = { strokeLinecap: "round" as const, strokeLinejoin: "round" as const, strokeWidth }
 
   return (
-    <button type="button" aria-label={label ?? "Folder preview"} className="lab-folder" style={rootStyle}>
+    <button
+      type="button"
+      aria-label={label ?? "Folder preview"}
+      className="lab-folder"
+      style={rootStyle}
+      onPointerEnter={() => setHovering(true)}
+      onPointerLeave={() => {
+        setHovering(false)
+        setBoilFrame(0)
+      }}
+    >
       <span className="lab-folder__icon" style={iconStyle} aria-hidden="true">
         <svg className="lab-folder__back" viewBox={viewBox}>
           {backFill.length > 0 && (

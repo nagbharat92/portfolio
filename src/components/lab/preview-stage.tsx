@@ -37,7 +37,7 @@ export function PreviewStage({ children, action, className }: PreviewStageProps)
           "--lab-surface": "var(--lab-stage)",
         } as CSSProperties
       }
-      className={cn("relative w-full rounded-2xl bg-(--lab-stage) p-6", className)}
+      className={cn("relative w-full rounded-2xl bg-(--lab-stage) p-10", className)}
     >
       <CornerFrame hideTopRight={Boolean(action)} />
       {action ? <div className="absolute right-3 top-3 z-10">{action}</div> : null}

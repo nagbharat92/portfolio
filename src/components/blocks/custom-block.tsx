@@ -5,6 +5,9 @@ import { FolderLab } from "@/components/blocks/custom/folder-lab"
 import { TypeLab } from "@/components/blocks/custom/type-lab"
 import { ColorLab } from "@/components/blocks/custom/color-lab"
 import { MotionLab } from "@/components/blocks/custom/motion-lab"
+import { FlowerLab } from "@/components/blocks/custom/flower-lab"
+import { AmbienceLab } from "@/components/blocks/custom/ambience-lab"
+import { ControlsLab } from "@/components/blocks/custom/controls-lab"
 
 type CustomBlockComponent = React.ComponentType<{
   index: number
@@ -26,6 +29,9 @@ const REGISTRY: Record<string, CustomBlockComponent> = {
   'type-lab':    TypeLab,
   'color-lab':   ColorLab,
   'motion-lab':  MotionLab,
+  'flower-lab':  FlowerLab,
+  'ambience-lab': AmbienceLab,
+  'controls-lab': ControlsLab,
 }
 
 export function CustomBlockRenderer({

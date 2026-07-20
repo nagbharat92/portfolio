@@ -37,15 +37,19 @@ export function linePaths(
     .map((p) => p.d)
 }
 
-/** Hand-drawn circle (centred at cx,cy) → SVG path `d` strings. */
+/** Hand-drawn circle (centred at cx,cy) → SVG path `d` strings. An optional
+ *  `bowing` override lets a caller draw a curvier (e.g. animated/boiling) circle
+ *  than the flat site ink; omit it to use the shared INK bowing. */
 export function circlePaths(
   cx: number,
   cy: number,
   diameter: number,
   seed: number,
+  bowing?: number,
 ): string[] {
+  const options = bowing === undefined ? { ...ROUGH_OPTIONS, seed } : { ...ROUGH_OPTIONS, seed, bowing }
   return generator
-    .toPaths(generator.circle(cx, cy, diameter, { ...ROUGH_OPTIONS, seed }))
+    .toPaths(generator.circle(cx, cy, diameter, options))
     .map((p) => p.d)
 }
 

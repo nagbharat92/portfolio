@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react"
 import type { CSSProperties, ReactNode } from "react"
-import { RotateCcw } from "lucide-react"
+import { Moon, RotateCcw, Sun } from "lucide-react"
 import { FadeInUp } from "@/components/ui/fade-in-up"
 import { RoughSlider } from "@/components/lab/rough-slider"
-import { ROUGH_OPTIONS, rectPath, roughPathInfos } from "@/components/lab/rough"
-import { cn } from "@/lib/utils"
+import { ColorPicker } from "@/components/lab/color-swatch"
+import type { Swatch } from "@/components/lab/rough-tiles"
+import { RoughBox, RoughLine } from "@/components/ui/rough-ink"
 
 interface ColorLabProps {
   index: number
@@ -39,38 +40,74 @@ function hslToHex(h: number, s: number, l: number): string {
 const fmtDeg = (v: number) => `${Math.round(v)}°`
 const fmtPct = (v: number) => `${Math.round(v)}%`
 
+/**
+ * A vivid hue spectrum (13 stops, 0→360) for painting a hue slider's rail, so
+ * the slider itself shows which colour each position selects. Rotated by `from`
+ * so the night "hue shift" rail runs from the current day hue around the wheel.
+ */
+const hueSpectrum = (from = 0) =>
+  Array.from({ length: 13 }, (_, i) => `hsl(${(from + i * 30) % 360} 85% 60%)`)
+
+/**
+ * The vivid colour at a single hue — matches the spectrum stops so a hue
+ * slider's knob reads as a lens over its rail, clearly showing the hue being
+ * chosen. (Using the derived palette background instead would render the night
+ * knob near-black at low lightness.)
+ */
+const hueSwatch = (h: number) => `hsl(${((h % 360) + 360) % 360} 85% 60%)`
+
+/**
+ * Sample an HSL function into `n` gradient stops (t: 0→1), so a slider's rail
+ * shows exactly how one channel morphs across its range while the others stay
+ * at their current values — and the matching knob (the derived palette colour)
+ * lands on the rail colour beneath it.
+ */
+const ramp = (n: number, f: (t: number) => HSL) =>
+  Array.from({ length: n }, (_, i) => css(f(i / (n - 1))))
+
 // ── Base backgrounds ──────────────────────────────────────────────────────────
-// The starting swatches: the site's warm yellow and a near-white "paper", plus a
-// spread of other hues to explore. A swatch sets hue + saturation + lightness;
-// the sliders fine-tune from there.
+// The starting swatches: a warm near-white "Paper" default, then a pastel
+// spectrum swept warm → cool (coral → plum), sized to fill exactly two full rows
+// of six. Paper is the first swatch and the default; the site's warm "Butter"
+// yellow anchors the warm end. A swatch sets hue + saturation + lightness; the
+// sliders fine-tune from there.
 type Base = { name: string; h: number; s: number; l: number }
 const BASES: Base[] = [
-  { name: "Paper", h: 45, s: 14, l: 96 },
-  { name: "Butter", h: 48, s: 60, l: 90 },
-  { name: "Amber", h: 36, s: 66, l: 88 },
-  { name: "Blush", h: 342, s: 55, l: 92 },
-  { name: "Coral", h: 14, s: 66, l: 90 },
-  { name: "Sky", h: 208, s: 48, l: 92 },
+  // Row 1 — warm
+  { name: "Paper", h: 48, s: 30, l: 98 }, // warm near-white, the default
+  { name: "Coral", h: 22, s: 62, l: 90 },
+  { name: "Amber", h: 36, s: 62, l: 89 },
+  { name: "Butter", h: 48, s: 60, l: 90 }, // site identity
+  { name: "Chartreuse", h: 74, s: 46, l: 90 },
+  { name: "Green", h: 120, s: 40, l: 91 },
+  // Row 2 — cool
   { name: "Mint", h: 152, s: 42, l: 92 },
-  { name: "Lilac", h: 274, s: 42, l: 93 },
+  { name: "Teal", h: 182, s: 40, l: 91 },
+  { name: "Sky", h: 202, s: 48, l: 92 },
+  { name: "Blue", h: 224, s: 50, l: 92 },
+  { name: "Violet", h: 262, s: 44, l: 93 },
+  { name: "Plum", h: 292, s: 42, l: 93 },
 ]
+
+/** The bases as framework swatches ({ name, color }) for <ColorPicker>. */
+const BASE_SWATCHES: Swatch[] = BASES.map((b) => ({ name: b.name, color: css({ h: b.h, s: b.s, l: b.l }) }))
 
 /**
  * The default value of every control — the single source of truth for both the
  * initial state and the Reset button, so the two can never drift. (Mirrors the
- * DEFAULTS pattern in folder-lab.tsx / type-lab.tsx.) Default = the site's warm
- * "Butter" yellow day, complemented (180°) into a blue night.
+ * DEFAULTS pattern in folder-lab.tsx / type-lab.tsx.) Default = the warm
+ * near-white "Paper" day (hue 48), complemented (180°) into a blue night.
  */
 const DEFAULTS = {
-  baseIndex: 1, // Butter
+  baseIndex: 0, // Paper
   hue: 48,
-  sat: 60,
-  light: 90,
-  shade: 6, // lightness step between the page and its cards
-  tint: 130, // card saturation as a % of the page's
+  sat: 30,
+  light: 98,
+  shade: 3, // lightness step between the page and its cards
+  tint: 75, // card saturation as a % of the page's
   nightShift: 180, // day → night hue turn (180° = exact complement)
-  nightSat: 34,
-  nightLight: 12,
+  nightSat: 15,
+  nightLight: 10,
 }
 
 // ── Palette derivation ────────────────────────────────────────────────────────
@@ -126,13 +163,18 @@ function buildPalette(mode: "day" | "night", c: Config): Palette {
 
 /** A titled control card — a light sidebar-coloured panel (matches the other
  *  labs). Publishes `--lab-surface` so slider knobs mask to the card colour. */
-function Card({ title, children }: { title: string; children: ReactNode }) {
+function Card({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <section
       style={{ "--lab-surface": "var(--color-sidebar)" } as CSSProperties}
       className="flex flex-col gap-4 rounded-2xl bg-(--lab-surface) p-5"
     >
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
+        {/* -mr-2 cancels the action button's own px-2 so its text/glyph right edge
+            lands flush with the content (slider) right edge below. */}
+        {action ? <div className="-mr-2">{action}</div> : null}
+      </div>
       {children}
     </section>
   )
@@ -154,127 +196,141 @@ function ResetButton({ onReset }: { onReset: () => void }) {
   )
 }
 
-// One hand-drawn base-colour swatch (a rough filled square, matching the Strokes
-// colour tiles). The fill is a fixed preset colour, so the sketch memoises once.
-const SW = 30
-const SW_INSET = 4
-const SW_INNER = SW - SW_INSET * 2
+// One hand-drawn base-colour swatch now comes from the site-wide colour-swatch
+// framework: <ColorPicker> renders the bases and blooms the selected one.
 
-function BaseSwatch({
-  color,
-  selected,
-  label,
-  seed,
-  onClick,
-}: {
-  color: string
-  selected: boolean
-  label: string
-  seed: number
-  onClick: () => void
-}) {
-  const paths = useMemo(
-    () =>
-      roughPathInfos(rectPath(SW_INSET, SW_INSET, SW_INNER, SW_INNER), {
-        fill: color,
-        fillStyle: "solid",
-        stroke: "currentColor",
-        ...ROUGH_OPTIONS,
-        seed,
-      }),
-    [color, seed],
-  )
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={selected}
-      aria-label={label}
-      title={label}
-      onClick={onClick}
-      className={cn(
-        "rounded-md p-0.5 outline-none transition-transform focus-visible:ring-2 focus-visible:ring-ring",
-        selected ? "scale-110 ring-2 ring-foreground/70" : "opacity-80 hover:opacity-100",
-      )}
-    >
-      <svg
-        aria-hidden="true"
-        width={SW}
-        height={SW}
-        viewBox={`0 0 ${SW} ${SW}`}
-        className="block overflow-visible text-foreground"
-      >
-        <g strokeLinecap="round" strokeLinejoin="round">
-          {paths.map((p, i) => (
-            <path key={i} d={p.d} stroke={p.stroke} fill={p.fill ?? "none"} strokeWidth={p.strokeWidth} />
-          ))}
-        </g>
-      </svg>
-    </button>
-  )
-}
+/** A mini product-UI painted entirely from a derived palette — a windowed card
+ *  with a header rule, an editorial headline, a profile/list tile beside an
+ *  activity tile, and an action row. Uses every role (bg / card / raised /
+ *  border / text / muted / accent / accentInk). All outlines are hand-drawn
+ *  (roughjs) in the palette's border ink, to match the site's sketchy UI. */
+function ThemePreview({ p, label, seed }: { p: Palette; label: string; seed: number }) {
+  const bg = css(p.bg)
+  const card = css(p.card)
+  const raised = css(p.raised)
+  const border = css(p.border)
+  const text = css(p.text)
+  const muted = css(p.muted)
+  const accent = css(p.accent)
+  const accentInk = css(p.accentInk)
+  const night = label === "Night"
+  const ModeIcon = night ? Moon : Sun
+  // A little bar-chart shape (percent heights); the peak carries the accent.
+  const bars = [44, 66, 54, 84, 60, 74, 50]
+  const peak = bars.indexOf(Math.max(...bars))
 
-/** A mini UI mock-up painted entirely from a derived palette — the page
- *  background, two cards that echo its hue, ink, and an accent chip. */
-function ThemePreview({ p, label }: { p: Palette; label: string }) {
+  // color = the border ink, so every nested RoughBox/RoughLine (currentColor)
+  // draws in the palette's border colour; text nodes set their own colour.
   return (
-    <div
-      className="overflow-hidden rounded-2xl"
-      style={{ backgroundColor: css(p.bg), border: `1px solid ${css(p.border)}` }}
-    >
-      <div className="flex flex-col gap-4 p-5">
-        <div className="flex items-center justify-between">
-          <span
-            style={{ color: css(p.muted) }}
-            className="text-[11px] font-semibold uppercase tracking-wider"
-          >
+    <div className="relative rounded-xl" style={{ backgroundColor: bg, color: border }}>
+      {/* Header — window chrome: mode label + a three-dot cluster (last is accent) */}
+      <div className="flex items-center justify-between px-4 py-2.5">
+        <div className="flex items-center gap-1.5">
+          <ModeIcon className="size-3.5" style={{ color: muted }} strokeWidth={2} />
+          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: muted }}>
             {label}
           </span>
-          <span className="size-3.5 rounded-full" style={{ backgroundColor: css(p.accent) }} />
         </div>
+        <div className="flex items-center gap-1">
+          <span className="size-2 rounded-full" style={{ backgroundColor: raised }} />
+          <span className="size-2 rounded-full" style={{ backgroundColor: border }} />
+          <span className="size-2 rounded-full" style={{ backgroundColor: accent }} />
+        </div>
+      </div>
+      {/* Hand-drawn header rule */}
+      <RoughLine seed={seed + 1} />
 
+      <div className="flex flex-col gap-3.5 p-4">
+        {/* Editorial headline */}
         <div>
-          <h4 style={{ color: css(p.text), fontFamily: "var(--font-display)" }} className="text-lg leading-tight">
-            Background
+          <h4 style={{ color: text, fontFamily: "var(--font-display)" }} className="text-xl leading-none">
+            {night ? "After dark" : "Daylight"}
           </h4>
-          <p style={{ color: css(p.muted) }} className="mt-1 text-sm">
-            Cards echo the page hue, one shade apart.
+          <p style={{ color: muted }} className="mt-1.5 text-sm leading-snug">
+            Surfaces echo the page hue, one shade apart.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          {[0, 1].map((i) => (
-            <div
-              key={i}
-              className="rounded-xl p-3"
-              style={{ backgroundColor: css(p.card), border: `1px solid ${css(p.border)}` }}
-            >
-              <div style={{ color: css(p.text) }} className="text-sm font-semibold">
-                Card
+        {/* Content grid — a profile/list tile beside an activity tile */}
+        <div className="grid grid-cols-5 gap-3">
+          <div className="relative col-span-3 rounded-lg p-3" style={{ backgroundColor: card }}>
+            <div className="flex items-center gap-2.5">
+              <span
+                className="grid size-9 shrink-0 place-items-center rounded-full text-[13px] font-bold"
+                style={{ backgroundColor: accent, color: accentInk }}
+              >
+                BN
+              </span>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold leading-tight" style={{ color: text }}>
+                  Bharat Nag
+                </div>
+                <div className="truncate text-xs" style={{ color: muted }}>
+                  Product designer
+                </div>
               </div>
-              <div style={{ color: css(p.muted) }} className="mt-0.5 text-xs">
-                Same hue · {label === "Night" ? "lighter" : "darker"}
-              </div>
-              <div className="mt-2.5 h-1.5 rounded-full" style={{ backgroundColor: css(p.raised) }} />
             </div>
-          ))}
+            <div className="mt-3.5 flex flex-col gap-2">
+              {["78%", "62%", "44%"].map((w, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <span className="size-1.5 shrink-0 rounded-full" style={{ backgroundColor: i === 0 ? accent : muted }} />
+                  <span className="h-2 rounded-full" style={{ width: w, backgroundColor: raised }} />
+                </div>
+              ))}
+            </div>
+            <RoughBox seed={seed + 2} />
+          </div>
+
+          <div className="relative col-span-2 flex flex-col rounded-lg p-3" style={{ backgroundColor: card }}>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-medium uppercase tracking-wide" style={{ color: muted }}>
+                Activity
+              </span>
+              <span
+                className="rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none"
+                style={{ backgroundColor: accent, color: accentInk }}
+              >
+                +12%
+              </span>
+            </div>
+            <div className="mt-auto flex h-11 items-end gap-1 pt-3">
+              {bars.map((h, i) => (
+                <span
+                  key={i}
+                  className="flex-1 rounded-[2px]"
+                  style={{ height: `${h}%`, backgroundColor: i === peak ? accent : raised }}
+                />
+              ))}
+            </div>
+            <RoughBox seed={seed + 3} />
+          </div>
         </div>
 
+        {/* Action row — a filled accent button, a hand-drawn ghost button, hue tags */}
         <div className="flex items-center gap-2">
           <span
-            className="rounded-lg px-3 py-1.5 text-sm font-semibold"
-            style={{ backgroundColor: css(p.accent), color: css(p.accentInk) }}
+            className="rounded-md px-3 py-1.5 text-xs font-semibold"
+            style={{ backgroundColor: accent, color: accentInk }}
           >
-            Accent
+            Get started
           </span>
-          <span
-            className="rounded-lg px-3 py-1.5 text-sm"
-            style={{ color: css(p.text), border: `1px solid ${css(p.border)}` }}
-          >
-            Outline
+          <span className="relative rounded-md px-3 py-1.5 text-xs font-medium" style={{ color: border }}>
+            <span style={{ color: text }}>Details</span>
+            <RoughBox seed={seed + 4} inset={2} />
           </span>
+          <div className="ml-auto flex items-center gap-1.5">
+            <span className="rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ backgroundColor: raised, color: muted }}>
+              hue
+            </span>
+            <span className="rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ backgroundColor: raised, color: muted }}>
+              +1 shade
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* Hand-drawn outer frame (drawn last so it sits above the fills) */}
+      <RoughBox seed={seed} />
     </div>
   )
 }
@@ -355,6 +411,18 @@ export function ColorLab({ index }: ColorLabProps) {
   const day = useMemo(() => buildPalette("day", config), [config])
   const night = useMemo(() => buildPalette("night", config), [config])
 
+  // Derived channel values that the coloured slider rails ramp over (mirrors
+  // buildPalette so each rail matches the preview): the night hue, the day
+  // cards' saturation, and the day cards' lightness.
+  const nightHue = (hue + nightShift) % 360
+  const cardS = clamp(sat * (tint / 100))
+  const dayCardL = clamp(light - shade)
+  // Night's real surfaces are very dark (L≈12), so a rail drawn at the true
+  // lightness reads as a near-black line. For the night sat/light rails we lift
+  // the OTHER channels to a legible level so the hue family is visible, while
+  // still ramping the channel the slider controls.
+  const nightVisS = clamp(Math.max(nightSat, 55))
+
   // The complement label, so the copy names the actual night hue live.
   const nightHueName = ((): string => {
     const h = (hue + nightShift) % 360
@@ -370,13 +438,13 @@ export function ColorLab({ index }: ColorLabProps) {
     <div className="flex w-full flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
       {/* ── PREVIEW — day above night, full-width theme cards, PINNED while the rail scrolls ─ */}
       <FadeInUp i={index} className="min-w-0 flex-1 lg:sticky lg:top-(--content-pt)">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-3">
-            <ThemePreview p={day} label="Day" />
+            <ThemePreview p={day} label="Day" seed={61} />
             <TokenRow p={day} />
           </div>
           <div className="flex flex-col gap-3">
-            <ThemePreview p={night} label="Night" />
+            <ThemePreview p={night} label="Night" seed={71} />
             <TokenRow p={night} />
           </div>
         </div>
@@ -385,34 +453,22 @@ export function ColorLab({ index }: ColorLabProps) {
       {/* ── CONTROLS — the rail scrolls beside the pinned preview ──────────── */}
       <FadeInUp i={index + 1} className="w-full shrink-0 lg:w-80">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Tune the palette
-            </h2>
-            <ResetButton onReset={reset} />
-          </div>
-
-          <Card title="Background">
-            <div role="radiogroup" aria-label="Base background colour" className="flex flex-wrap gap-2">
-              {BASES.map((b, i) => (
-                <BaseSwatch
-                  key={b.name}
-                  color={css({ h: b.h, s: b.s, l: b.l })}
-                  selected={baseIndex === i}
-                  label={b.name}
-                  seed={40 + i}
-                  onClick={() => applyBase(i)}
-                />
-              ))}
-            </div>
-            <RoughSlider label="Hue" value={hue} min={0} max={360} step={1} onChange={(v) => { setHue(v); setBaseIndex(-1) }} format={fmtDeg} seed={11} />
-            <RoughSlider label="Saturation" value={sat} min={0} max={100} step={1} onChange={(v) => { setSat(v); setBaseIndex(-1) }} format={fmtPct} seed={12} />
-            <RoughSlider label="Lightness" value={light} min={80} max={99} step={1} onChange={(v) => { setLight(v); setBaseIndex(-1) }} format={fmtPct} seed={13} />
+          <Card title="Background" action={<ResetButton onReset={reset} />}>
+            <ColorPicker
+              swatches={BASE_SWATCHES}
+              value={baseIndex}
+              onChange={applyBase}
+              label="Base background colour"
+              cols="grid-cols-6"
+            />
+            <RoughSlider label="Hue" value={hue} min={0} max={360} step={1} onChange={(v) => { setHue(v); setBaseIndex(-1) }} format={fmtDeg} seed={11} gradient={hueSpectrum()} thumbColor={hueSwatch(hue)} />
+            <RoughSlider label="Saturation" value={sat} min={0} max={100} step={1} onChange={(v) => { setSat(v); setBaseIndex(-1) }} format={fmtPct} seed={12} gradient={ramp(7, (t) => ({ h: hue, s: t * 100, l: light }))} thumbColor={css(day.bg)} />
+            <RoughSlider label="Lightness" value={light} min={80} max={99} step={1} onChange={(v) => { setLight(v); setBaseIndex(-1) }} format={fmtPct} seed={13} gradient={ramp(7, (t) => ({ h: hue, s: sat, l: 80 + t * 19 }))} thumbColor={css(day.bg)} />
           </Card>
 
           <Card title="Cards">
-            <RoughSlider label="Shade step" value={shade} min={0} max={20} step={1} onChange={setShade} format={fmtPct} seed={21} />
-            <RoughSlider label="Hue in cards" value={tint} min={40} max={200} step={5} onChange={setTint} format={fmtPct} seed={22} />
+            <RoughSlider label="Shade step" value={shade} min={0} max={20} step={1} onChange={setShade} format={fmtPct} seed={21} gradient={ramp(7, (t) => ({ h: hue, s: cardS, l: clamp(light - t * 20) }))} thumbColor={css(day.card)} />
+            <RoughSlider label="Hue in cards" value={tint} min={40} max={200} step={5} onChange={setTint} format={fmtPct} seed={22} gradient={ramp(7, (t) => ({ h: hue, s: clamp(sat * (40 + t * 160) / 100), l: dayCardL }))} thumbColor={css(day.card)} />
             <p className="text-sm text-muted-foreground">
               Cards keep the page hue and step one shade toward the surface —
               darker by day, lighter at night.
@@ -420,9 +476,9 @@ export function ColorLab({ index }: ColorLabProps) {
           </Card>
 
           <Card title="Night (dark mode)">
-            <RoughSlider label="Hue shift" value={nightShift} min={0} max={360} step={5} onChange={setNightShift} format={fmtDeg} seed={31} />
-            <RoughSlider label="Saturation" value={nightSat} min={0} max={100} step={1} onChange={setNightSat} format={fmtPct} seed={32} />
-            <RoughSlider label="Lightness" value={nightLight} min={5} max={24} step={1} onChange={setNightLight} format={fmtPct} seed={33} />
+            <RoughSlider label="Hue shift" value={nightShift} min={0} max={360} step={5} onChange={setNightShift} format={fmtDeg} seed={31} gradient={hueSpectrum(hue)} thumbColor={hueSwatch(hue + nightShift)} />
+            <RoughSlider label="Saturation" value={nightSat} min={0} max={100} step={1} onChange={setNightSat} format={fmtPct} seed={32} gradient={ramp(7, (t) => ({ h: nightHue, s: t * 100, l: 52 }))} thumbColor={css({ h: nightHue, s: nightSat, l: 52 })} />
+            <RoughSlider label="Lightness" value={nightLight} min={5} max={24} step={1} onChange={setNightLight} format={fmtPct} seed={33} gradient={ramp(7, (t) => ({ h: nightHue, s: nightVisS, l: 5 + t * 19 }))} thumbColor={css({ h: nightHue, s: nightVisS, l: nightLight })} />
             <p className="text-sm text-muted-foreground">
               Night turns the day hue through the wheel. At{" "}
               <strong className="font-semibold text-foreground">180°</strong> it lands on the exact

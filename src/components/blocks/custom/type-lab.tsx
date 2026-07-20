@@ -172,13 +172,18 @@ const DEFAULTS = {
  * section, matching the Strokes (folder-lab) control cards. The card publishes
  * `--lab-surface` so descendant slider knobs mask to the card's own background.
  */
-function Card({ title, children }: { title: string; children: ReactNode }) {
+function Card({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <section
       style={{ "--lab-surface": "var(--color-sidebar)" } as CSSProperties}
       className="flex flex-col gap-4 rounded-2xl bg-(--lab-surface) p-5"
     >
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
+        {/* -mr-2 cancels the action button's own px-2 so its text/glyph right edge
+            lands flush with the content (slider) right edge below. */}
+        {action ? <div className="-mr-2">{action}</div> : null}
+      </div>
       {children}
     </section>
   )
@@ -225,12 +230,15 @@ function PairingCard({
   seed: number
   onSelect: () => void
 }) {
+  const [hovering, setHovering] = useState(false)
   return (
     <button
       type="button"
       role="radio"
       aria-checked={selected}
       onClick={onSelect}
+      onPointerEnter={() => setHovering(true)}
+      onPointerLeave={() => setHovering(false)}
       style={{ "--lab-surface": "var(--color-sidebar)" } as CSSProperties}
       className={cn(
         "group relative flex w-60 shrink-0 snap-start flex-col gap-3 rounded-2xl p-5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -239,8 +247,8 @@ function PairingCard({
     >
       <RoughBox
         seed={seed}
-        radius={16}
         inset={3}
+        boil={hovering}
         className={cn(selected ? "text-foreground" : "text-border group-hover:text-muted-foreground")}
       />
       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -286,18 +294,21 @@ function CustomCard({
   onDisplayChange: (v: string) => void
   onBodyChange: (v: string) => void
 }) {
+  const [hovering, setHovering] = useState(false)
   return (
     <div
       role="radio"
       aria-checked={selected}
       aria-label="Custom pairing"
+      onPointerEnter={() => setHovering(true)}
+      onPointerLeave={() => setHovering(false)}
       style={{ "--lab-surface": "var(--color-sidebar)" } as CSSProperties}
       className={cn(
         "relative flex w-72 shrink-0 snap-start flex-col gap-3 rounded-2xl p-5",
         selected && "bg-(--lab-surface)",
       )}
     >
-      <RoughBox seed={seed} radius={16} inset={3} className={cn(selected ? "text-foreground" : "text-border")} />
+      <RoughBox seed={seed} radius={16} inset={3} boil={hovering} className={cn(selected ? "text-foreground" : "text-border")} />
       <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Custom</span>
       <FontCombobox
         label="Display font"
@@ -524,7 +535,7 @@ export function TypeLab({ index }: TypeLabProps) {
       <FadeInUp i={index + 1} className="min-w-0 flex-1">
         <div
           style={specimenStyle}
-          className="relative rounded-2xl bg-(--lab-stage) px-6 py-8 sm:px-10 sm:py-12"
+          className="relative rounded-2xl bg-(--lab-stage) p-10"
         >
           <CornerFrame />
           <div style={{ maxWidth: "var(--type-measure)" }} className="mx-auto w-full">
@@ -655,14 +666,7 @@ export function TypeLab({ index }: TypeLabProps) {
       {/* ── CONTROLS — a sticky rail beside the specimen ──────────────────── */}
       <FadeInUp i={index + 2} className="w-full shrink-0 lg:sticky lg:top-(--content-pt) lg:w-80">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Tune the pairing
-            </h2>
-            <ResetButton onReset={reset} />
-          </div>
-
-          <Card title="Why it works">
+          <Card title="Why it works" action={<ResetButton onReset={reset} />}>
             <p className="text-sm leading-relaxed text-foreground/80">
               <span className="font-semibold text-foreground">{activeName}. </span>
               {whyText}

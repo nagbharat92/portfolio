@@ -19,7 +19,7 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      "fixed inset-0 z-50 bg-black/32 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "drawer-scrim fixed inset-0 z-50 ease-in-out data-[state=open]:duration-500 data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -40,6 +40,10 @@ SheetOverlay.displayName = SheetPrimitive.Overlay.displayName
  *                   or mobile search overlays.
  * @variant bottom — Slides in from the bottom edge. Use for mobile action sheets
  *                   or confirmation dialogs on small screens.
+ * @variant float  — Floats inset from the top/left/bottom edges (padded, rounded
+ *                   to match the desktop sidebar) and slides in from the left, so
+ *                   the mobile menu drawer looks identical to the floating desktop
+ *                   sidebar rather than hugging the edge.
  */
 const sheetVariants = cva(
   "fixed z-50 gap-4 bg-background p-6 transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -52,6 +56,8 @@ const sheetVariants = cva(
         left: "inset-y-0 left-0 h-full w-3/4 rounded-r-xl border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
         right:
           "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+        float:
+          "left-6 top-6 bottom-6 w-3/4 max-w-[calc(100vw_-_3rem)] rounded-xl data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-left data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-left",
       },
     },
     defaultVariants: {

@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, type ReactNode } from "react"
 import {
   FILL_STYLES,
   ROUGH_OPTIONS,
@@ -10,9 +10,11 @@ import {
 import { cn } from "@/lib/utils"
 
 /**
- * Hand-drawn selectable tiles for the Folder Lab:
- *   - RoughSwatches — the accent wheel (index -1 = default ink).
+ * Hand-drawn selectable tiles for the labs.
  *   - RoughPatterns — a preview of each roughjs fill pattern.
+ *   - SwatchGrid — the shared grid layout for a row of tiles.
+ * The COLOUR-SWATCH picker (the selected tile blooms into a spinning flower)
+ * lives in the site-wide framework: src/components/lab/color-swatch.tsx.
  * Each tile is a small rough square (squiggly, like everything else in the lab).
  */
 
@@ -26,12 +28,15 @@ export type Swatch = { name: string; color: string }
 export const SWATCHES: Swatch[] = [
   { name: "Rose", color: "var(--accent-rose)" },
   { name: "Coral", color: "var(--accent-coral)" },
+  { name: "Orange", color: "var(--accent-orange)" },
   { name: "Amber", color: "var(--accent-amber)" },
   { name: "Yellow", color: "var(--accent-yellow-wheel)" },
   { name: "Citron", color: "var(--accent-citron)" },
   { name: "Green", color: "var(--accent-green-wheel)" },
+  { name: "Emerald", color: "var(--accent-emerald)" },
   { name: "Teal", color: "var(--accent-teal)" },
   { name: "Cyan", color: "var(--accent-cyan)" },
+  { name: "Azure", color: "var(--accent-azure)" },
   { name: "Blue", color: "var(--accent-blue-wheel)" },
   { name: "Indigo", color: "var(--accent-indigo)" },
   { name: "Violet", color: "var(--accent-violet)" },
@@ -79,49 +84,34 @@ function Tile({
   )
 }
 
-interface RoughSwatchesProps {
-  /** Selected swatch index; -1 = default ink. */
-  value: number
-  onChange: (index: number) => void
-}
-
-export function RoughSwatches({ value, onChange }: RoughSwatchesProps) {
-  const inkPaths = useMemo(
-    () =>
-      roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
-        fill: "none",
-        stroke: "currentColor",
-        ...ROUGH_OPTIONS,
-        seed: 39,
-      }),
-    [],
-  )
-  const swatchPaths = useMemo(
-    () =>
-      SWATCHES.map((s, i) =>
-        roughPathInfos(rectPath(INSET, INSET, INNER, INNER), {
-          fill: s.color,
-          fillStyle: "solid",
-          stroke: "currentColor",
-          ...ROUGH_OPTIONS,
-          seed: 40 + i,
-        }),
-      ),
-    [],
-  )
-
+/**
+ * SwatchGrid — the shared layout for every hand-drawn swatch/tile row in the
+ * labs (folder colour, fill patterns, flower colours, background bases). Lays
+ * the fixed-size square tiles in a CSS grid, each square centred in its cell, so
+ * a row is always full — no left-hugging orphans. Pick a `cols` count that
+ * divides the tile count: 12 tiles → `grid-cols-6` (two rows of six); a 13- or
+ * 7-tile wheel → one row. Centralising the rule here keeps the labs from
+ * drifting apart.
+ *
+ * By default the columns STRETCH (`1fr`) so the row fills its card edge-to-edge
+ * — right for a snug card like the background rail. Pass `className="w-fit"`
+ * when the container is much wider than the tiles (e.g. the flower stage) to
+ * keep a tight, start-aligned block instead of a sparse, over-spread row.
+ */
+export function SwatchGrid({
+  label,
+  cols,
+  className,
+  children,
+}: {
+  label: string
+  cols: string
+  className?: string
+  children: ReactNode
+}) {
   return (
-    <div role="radiogroup" aria-label="Folder colour" className="flex flex-wrap gap-2">
-      <Tile paths={inkPaths} selected={value === -1} label="Default ink" onClick={() => onChange(-1)} />
-      {SWATCHES.map((s, i) => (
-        <Tile
-          key={s.name}
-          paths={swatchPaths[i]}
-          selected={value === i}
-          label={s.name}
-          onClick={() => onChange(i)}
-        />
-      ))}
+    <div role="radiogroup" aria-label={label} className={cn("grid justify-items-center gap-2", cols, className)}>
+      {children}
     </div>
   )
 }
@@ -170,7 +160,7 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
   )
 
   return (
-    <div role="radiogroup" aria-label="Fill pattern" className="flex flex-wrap gap-2">
+    <SwatchGrid label="Fill pattern" cols="grid-cols-7">
       <Tile paths={nonePaths} selected={value === "none"} label="No fill" onClick={() => onChange("none")} />
       {FILL_STYLES.map((style, i) => (
         <Tile
@@ -181,6 +171,6 @@ export function RoughPatterns({ value, onChange, ink }: RoughPatternsProps) {
           onClick={() => onChange(style)}
         />
       ))}
-    </div>
+    </SwatchGrid>
   )
 }

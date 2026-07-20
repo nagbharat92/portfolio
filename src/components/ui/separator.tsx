@@ -36,11 +36,15 @@ interface SeparatorProps
   decorative?: boolean
   /** Fixed roughjs seed so the sketchy line never re-wobbles. */
   seed?: number
+  /** When true, the line's seed animates so the stroke "boils". */
+  boil?: boolean
+  /** Override the global ink bowing (roughjs curviness). */
+  bowing?: number
 }
 
 const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
   (
-    { className, orientation = "horizontal", decorative = true, seed, ...props },
+    { className, orientation = "horizontal", decorative = true, seed, boil, bowing, ...props },
     ref
   ) => (
     <div
@@ -50,7 +54,7 @@ const Separator = React.forwardRef<HTMLDivElement, SeparatorProps>(
       className={cn(separatorVariants({ orientation }), className)}
       {...props}
     >
-      <RoughLine orientation={orientation ?? "horizontal"} seed={seed} />
+      <RoughLine orientation={orientation ?? "horizontal"} seed={seed} boil={boil} bowing={bowing} />
     </div>
   )
 )

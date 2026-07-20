@@ -6,7 +6,8 @@ import { LabFolder, type LabFolderConfig } from "@/components/lab/lab-folder"
 import { LabStage } from "@/components/lab/lab-stage"
 import { RoughSlider } from "@/components/lab/rough-slider"
 import { RoughCheckbox } from "@/components/lab/rough-checkbox"
-import { RoughSwatches, SWATCHES } from "@/components/lab/rough-tiles"
+import { SWATCHES } from "@/components/lab/rough-tiles"
+import { ColorPicker } from "@/components/lab/color-swatch"
 import { INK } from "@/lib/ink"
 
 interface FolderLabProps {
@@ -269,7 +270,14 @@ export function FolderLab({ index }: FolderLabProps) {
 
         <FadeInUp i={index + 4}>
           <Card title="Colour">
-            <RoughSwatches value={swatchIndex} onChange={setSwatchIndex} />
+            <ColorPicker
+              swatches={SWATCHES}
+              value={swatchIndex}
+              onChange={setSwatchIndex}
+              ink
+              label="Folder colour"
+              cols="grid-cols-8 sm:grid-cols-[repeat(16,minmax(0,1fr))]"
+            />
           </Card>
         </FadeInUp>
 

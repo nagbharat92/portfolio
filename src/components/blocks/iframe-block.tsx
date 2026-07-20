@@ -14,7 +14,7 @@ export function IframeBlockRenderer({ block, index }: { block: IframeBlock; inde
             title="Project preview"
           />
         </div>
-        <RoughBox seed={53} radius={9} className="text-muted-foreground" />
+        <RoughBox seed={53} className="text-muted-foreground" />
       </div>
       {block.caption && (
         <p className="mt-(--caption-gap) text-center text-(length:--content-body-size) text-muted-foreground">

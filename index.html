@@ -13,8 +13,8 @@
       rel="stylesheet"
     />
     <!-- Browser UI / toolbar tint (Dia, Safari, Chrome). Kept in sync with the
-         page background (--bg): #FCFAF3 light, #1A1815 dark. -->
-    <meta name="theme-color" content="#FCFAF3" />
+         page background (--bg): #FBFBF8 light, #16171D dark. -->
+    <meta name="theme-color" content="#FBFBF8" />
     <script>
       // Seed the manual data-theme attribute + theme-color once, before first
       // paint, from the OS preference. After mount the app owns it (manual
@@ -23,7 +23,7 @@
         var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
         var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) meta.setAttribute('content', isDark ? '#1A1815' : '#FCFAF3');
+        if (meta) meta.setAttribute('content', isDark ? '#16171D' : '#FBFBF8');
       })();
     </script>
   </head>
@@ -31,7 +31,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!-- Fallback content shown before React mounts -->
-    <div id="loading" style="display:none; text-align:center; padding:4rem; font-family:system-ui,sans-serif; color:#8A857A;">
+    <div id="loading" style="display:none; text-align:center; padding:4rem; font-family:system-ui,sans-serif; color:#7A7666;">
       <p>Loading...</p>
     </div>
     <script type="module" src="/src/main.tsx"></script>
