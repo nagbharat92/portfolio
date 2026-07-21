@@ -50,7 +50,6 @@ export function ProjectCanvas({ page }: ProjectCanvasProps) {
                 block.componentId === 'color-lab' ||
                 block.componentId === 'motion-lab' ||
                 block.componentId === 'flower-lab' ||
-                block.componentId === 'ambience-lab' ||
                 block.componentId === 'controls-lab' ||
                 block.componentId === 'text-boil'))
             const isStats = block.type === 'stats'

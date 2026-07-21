@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
+import type { ReactNode } from "react"
 import { TEXT_BOIL, TEXT_BOIL_FILTER_ID } from "@/lib/text-boil"
+import { cn } from "@/lib/utils"
 
 /**
  * Track prefers-reduced-motion so the boil holds still for users who opt out of
@@ -73,4 +75,19 @@ export function InkBoilFilter() {
       </defs>
     </svg>
   )
+}
+
+/**
+ * InkBoilText — wraps text so it "boils" (the hand-drawn ink wobble) the whole
+ * time it's on screen, via the global filter. Use it for TRANSIENT text that is
+ * only shown briefly and should animate while visible — e.g. tooltip labels.
+ *
+ * (For LINKS, prefer the hover classes `.ink-boil` / `.ink-boil-parent` instead,
+ * which boil only on hover/focus — see the INK BOIL block in index.css.)
+ *
+ * The underlying `.ink-boil-on` rule is gated to real-hover, motion-OK
+ * environments, so touch and prefers-reduced-motion users get plain, crisp text.
+ */
+export function InkBoilText({ children, className }: { children: ReactNode; className?: string }) {
+  return <span className={cn("ink-boil-on inline-block", className)}>{children}</span>
 }

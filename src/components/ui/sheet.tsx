@@ -57,7 +57,7 @@ const sheetVariants = cva(
         right:
           "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
         float:
-          "left-6 top-6 bottom-6 w-3/4 max-w-[calc(100vw_-_3rem)] rounded-xl data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-left data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-left",
+          "drawer-pop left-6 top-6 bottom-6 w-3/4 max-w-[calc(100vw_-_3rem)] rounded-xl",
       },
     },
     defaultVariants: {

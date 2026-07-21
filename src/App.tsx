@@ -88,7 +88,7 @@ function MenuButton() {
           <RoughMenuButton />
         </TooltipTrigger>
         <TooltipContent side="bottom">
-          <p>Explore</p>
+          Explore
         </TooltipContent>
       </Tooltip>
     </div>

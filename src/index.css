@@ -119,6 +119,11 @@
   .ink-boil-parent:focus-visible .ink-boil {
     filter: url(#site-ink-boil);
   }
+  /* Always-on boil for TRANSIENT text that's only shown briefly (e.g. tooltip
+     labels via <InkBoilText>) — it wobbles the whole time it's visible. */
+  .ink-boil-on {
+    filter: url(#site-ink-boil);
+  }
 }
 
 /* =============================================================================
@@ -462,6 +467,80 @@ button:not([data-animating]):hover .typewriter-text {
 .animate-bloom-spin {
   transform-origin: 50% 50%;
   animation: bloom-spin 16s linear infinite;
+}
+
+/* Tooltip entrance — a small, springy "pop" that grows from the trigger,
+   echoing the swatch/knob pop (same --ease-spring overshoot). Gentle: it starts
+   at 0.8 and the spring easing overshoots ~8% before settling — some pop, not
+   much. Origin follows Radix's popper transform-origin so it emanates from the
+   anchor; exit is a quick, un-bouncy fade-shrink. */
+@keyframes tooltip-pop-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes tooltip-pop-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.95); }
+}
+.tooltip-pop {
+  transform-origin: var(--radix-tooltip-content-transform-origin, center);
+}
+.tooltip-pop[data-state="delayed-open"],
+.tooltip-pop[data-state="instant-open"] {
+  animation: tooltip-pop-in var(--duration-base) var(--ease-spring);
+}
+.tooltip-pop[data-state="closed"] {
+  animation: tooltip-pop-out var(--duration-fast) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No scale/spring for reduced motion — a plain quick fade in, instant out. */
+  .tooltip-pop[data-state="delayed-open"],
+  .tooltip-pop[data-state="instant-open"] {
+    animation: fade-in var(--duration-fast) var(--ease-out);
+  }
+  .tooltip-pop[data-state="closed"] {
+    animation: none;
+  }
+}
+
+/* Nav drawer (the `float` sheet = the sidepanel) entrance — slides in from the
+   left with a small, playful spring overshoot (nudges ~16px past its resting
+   spot, then settles) so the panel POPS in instead of gliding. Snappy in, quick
+   un-bouncy slide-out. Only the float variant (the sidebar drawer) uses this. */
+@keyframes drawer-pop-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  66% {
+    opacity: 1;
+    transform: translateX(8px);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-pop-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-100%); }
+}
+.drawer-pop[data-state="open"] {
+  animation: drawer-pop-in 440ms both;
+}
+.drawer-pop[data-state="closed"] {
+  animation: drawer-pop-out var(--duration-slow) var(--ease-in) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No slide/overshoot for reduced motion — a plain quick fade in, instant out. */
+  .drawer-pop[data-state="open"] {
+    animation: fade-in var(--duration-fast) var(--ease-out) both;
+  }
+  .drawer-pop[data-state="closed"] {
+    animation: none;
+  }
 }
 
 /* =============================================================================

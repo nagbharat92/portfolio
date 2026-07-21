@@ -138,11 +138,11 @@ function HoverBoilLink({ filterId, children }: { filterId: string; children: Rea
 
 /**
  * A word that opens a tooltip whose label boils — the second real target. The
- * filter lands on an inner span so only the tooltip TEXT wobbles, not its
- * bubble/arrow. (Tooltips render in a portal, but SVG filter ids resolve
- * document-wide, so the reference still finds the def.)
+ * tooltip's own <TooltipContent> now boils its label site-wide (via InkBoilText
+ * + the TEXT_BOIL token), so this just shows a plain tooltip and lets the shared
+ * component do the wobble.
  */
-function BoilTooltip({ filterId, children }: { filterId: string; children: ReactNode }) {
+function BoilTooltip({ children }: { children: ReactNode }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -153,11 +153,7 @@ function BoilTooltip({ filterId, children }: { filterId: string; children: React
           {children}
         </button>
       </TooltipTrigger>
-      <TooltipContent>
-        <span style={{ filter: `url(#${filterId})` }} className="inline-block">
-          Hand-drawn tooltip
-        </span>
-      </TooltipContent>
+      <TooltipContent>Hand-drawn tooltip</TooltipContent>
     </Tooltip>
   )
 }
@@ -287,7 +283,7 @@ export function TextBoilLab({ index }: TextBoilLabProps) {
                 Roughened ink brings letters to life. Hover{" "}
                 <HoverBoilLink filterId={filterId}>this link</HoverBoilLink> to feel it
                 boil, or rest on{" "}
-                <BoilTooltip filterId={filterId}>this term</BoilTooltip> to pop a tooltip
+                <BoilTooltip>this term</BoilTooltip> to pop a tooltip
                 that wobbles too.
               </p>
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">

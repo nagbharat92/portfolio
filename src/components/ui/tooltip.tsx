@@ -2,6 +2,7 @@ import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
+import { InkBoilText } from "@/components/ui/ink-boil"
 
 const TooltipProvider = TooltipPrimitive.Provider
 
@@ -12,18 +13,18 @@ const TooltipTrigger = TooltipPrimitive.Trigger
 const TooltipContent = React.forwardRef<
   React.ComponentRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 8, ...props }, ref) => (
+>(({ className, sideOffset = 8, children, ...props }, ref) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "tooltip-pop z-50 rounded-md bg-primary px-3 py-1.5 text-sm font-bold text-primary-foreground",
         className
       )}
       {...props}
     >
-      {props.children}
+      <InkBoilText>{children}</InkBoilText>
       <TooltipPrimitive.Arrow className="fill-primary" />
     </TooltipPrimitive.Content>
   </TooltipPrimitive.Portal>
